@@ -41,12 +41,13 @@ function CalculatorView () {
   /* toggle a service in/out of the selection */
   const toggleService = key => {
     const name = serviceDatabase[key].name;
+    const isCurrentlySelected = selected.includes(key);
     setSelected(prev =>
-      prev.includes(key)
+      isCurrentlySelected
         ? prev.filter(k => k !== key)
         : sortKeys([...prev, key])
     );
-    setToast(prev.includes(key) ? `Odebráno: ${name}` : `Přidáno: ${name}`);
+    setToast(isCurrentlySelected ? `Odebráno: ${name}` : `Přidáno: ${name}`);
   };
 
   /* memoised list of services currently shown in the grid */
