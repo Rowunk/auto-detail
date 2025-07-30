@@ -7,7 +7,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
+    "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
     "lodash.debounce": "^4.0.8",
