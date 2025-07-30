@@ -1,24 +1,35 @@
-// src/components/HistorySection.jsx
+// src/components/HistorySection.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import { getStorageItem, setStorageItem, removeStorageItem } from '../utils/storage';
 import { ConfigContext } from '../contexts/ConfigContext';
+import { HistorySectionProps } from '../types/props';
+import { HistoryEntry } from '../types';
 import Toast from './Toast';
 
-export default function HistorySection() {
+/**
+ * Displays a list of saved detailing jobs with summary metrics.
+ * Allows deleting individual jobs or all history.
+ *
+ * @returns {React.ReactElement} History section component
+ * 
+ * @example
+ * <HistorySection />
+ */
+export default function HistorySection(): React.ReactElement {
   const { storageAvailable } = useContext(ConfigContext);
-  const [history, setHistory] = useState([]);
-  const [toast, setToast] = useState('');
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [toast, setToast] = useState<string>('');
 
   // Load history from localStorage on mount
   useEffect(() => {
     if (storageAvailable) {
-      const saved = getStorageItem('detailingHistoryGranular', []);
+      const saved = getStorageItem<HistoryEntry[]>('detailingHistoryGranular', []);
       setHistory(saved);
     }
   }, [storageAvailable]);
 
   // Delete a single history entry
-  const deleteItem = (index) => {
+  const deleteItem = (index: number): void => {
     if (!window.confirm('Smazat tuto zakázku z historie?')) return;
     
     if (!storageAvailable) {
@@ -39,7 +50,7 @@ export default function HistorySection() {
   };
 
   // Clear all history
-  const clearHistory = () => {
+  const clearHistory = (): void => {
     if (!window.confirm('Smazat celou historii zakázek?')) return;
     
     if (!storageAvailable) {
@@ -57,7 +68,7 @@ export default function HistorySection() {
   };
 
   const totalJobs = history.length;
-  const totalRevenue = history.reduce((sum, item) => sum + item.price, 0);
+  const totalRevenue = history.reduce((sum, item) => sum + (item.price || 0), 0);
 
   return (
     <section className="p-4">
@@ -134,3 +145,5 @@ export default function HistorySection() {
     </section>
   );
 }
+
+// No PropTypes needed as this component has no props

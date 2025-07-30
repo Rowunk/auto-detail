@@ -1,15 +1,22 @@
-// src/components/Header.jsx
+// src/components/Header.tsx
 import React, { useEffect, useState } from 'react';
 import { getStorageItem, setStorageItem } from '../utils/storage';
 import SettingsModal from './SettingsModal';
+import { HeaderProps } from '../types/props';
 
 /**
- * Sticky app header with dark‑mode toggle and settings modal.
+ * Sticky app header with dark-mode toggle and settings modal.
+ * Appears at the top of the application and stays fixed while scrolling.
+ *
+ * @returns {React.ReactElement} Header component
+ * 
+ * @example
+ * <Header />
  */
-export default function Header() {
+export default function Header(): React.ReactElement {
   /* Dark‑mode handling */
-  const [darkMode, setDarkMode] = useState(
-    () => getStorageItem('theme') === 'dark'
+  const [darkMode, setDarkMode] = useState<boolean>(
+    () => getStorageItem<string>('theme', 'light') === 'dark'
   );
   
   useEffect(() => {
@@ -18,7 +25,7 @@ export default function Header() {
   }, [darkMode]);
 
   /* Settings modal */
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
     <>
@@ -55,3 +62,5 @@ export default function Header() {
     </>
   );
 }
+
+// No PropTypes needed as this component has no props

@@ -1,7 +1,14 @@
-// src/components/TipsSection.jsx
+// src/components/TipsSection.tsx
 import React from 'react';
+import { TipsSectionProps } from '../types/props';
 
-const tips = [
+type Tip = {
+  title: string;
+  text: string;
+  accent: string;
+};
+
+const tips: Tip[] = [
   {
     title: '🎯 Granulární přístup',
     text: 'Kombinujte služby pro optimální výsledek. Každá služba má specifické požadavky a pořadí.',
@@ -19,7 +26,16 @@ const tips = [
   },
 ];
 
-export default function TipsSection() {
+/**
+ * Displays professional tips for detailing services.
+ * Contains static information about best practices.
+ *
+ * @returns {React.ReactElement} Tips section component
+ * 
+ * @example
+ * <TipsSection />
+ */
+export default function TipsSection(): React.ReactElement {
   return (
     <section className="p-4">
       <div className="bg-white rounded-lg shadow mb-4 p-4">
@@ -39,3 +55,5 @@ export default function TipsSection() {
     </section>
   );
 }
+
+// No PropTypes needed as this component has no props

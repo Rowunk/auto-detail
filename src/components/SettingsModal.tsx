@@ -1,14 +1,25 @@
-// src/components/SettingsModal.jsx
-import React, { useContext, useEffect, useState } from 'react';
+// src/components/SettingsModal.tsx
+import React, { useContext, useEffect, useState, ChangeEvent } from 'react';
+import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
+import { SettingsModalProps } from '../types/props';
+import { AppConfig } from '../types';
 
 /**
  * Modal dialog for global settings (Nastavení).
  * Appears when `open` is true and closes via onClose().
+ *
+ * @param {SettingsModalProps} props - Component props
+ * @param {boolean} props.open - Whether the modal is currently visible
+ * @param {Function} props.onClose - Callback to close the modal
+ * @returns {React.ReactElement|null} Settings modal component or null if not open
+ * 
+ * @example
+ * <SettingsModal open={isOpen} onClose={() => setIsOpen(false)} />
  */
-export default function SettingsModal({ open, onClose }) {
+export default function SettingsModal({ open, onClose }: SettingsModalProps): React.ReactElement | null {
   const { config, setConfig } = useContext(ConfigContext);
-  const [local, setLocal]     = useState(config);
+  const [local, setLocal] = useState<AppConfig>(config);
 
   /* Sync local copy when modal opens */
   useEffect(() => {
@@ -17,9 +28,21 @@ export default function SettingsModal({ open, onClose }) {
 
   if (!open) return null;
 
-  const save = () => {
+  const save = (): void => {
     setConfig({ ...config, ...local });
     onClose();
+  };
+
+  const handleWorkersChange = (e: ChangeEvent<HTMLSelectElement>): void => {
+    setLocal({ ...local, workers: Number(e.target.value) });
+  };
+
+  const handleHourlyRateChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setLocal({ ...local, hourlyRate: Number(e.target.value) });
+  };
+
+  const handleCostRatioChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setLocal({ ...local, costRatio: Number(e.target.value) });
   };
 
   return (
@@ -42,7 +65,7 @@ export default function SettingsModal({ open, onClose }) {
             </label>
             <select
               value={local.workers}
-              onChange={e => setLocal({ ...local, workers: Number(e.target.value) })}
+              onChange={handleWorkersChange}
               className="w-full border rounded px-2 py-1 dark:bg-gray-700 dark:border-gray-600"
             >
               {[1, 2, 3, 4, 5, 6].map(n => (
@@ -61,7 +84,7 @@ export default function SettingsModal({ open, onClose }) {
               min="0"
               step="50"
               value={local.hourlyRate}
-              onChange={e => setLocal({ ...local, hourlyRate: Number(e.target.value) })}
+              onChange={handleHourlyRateChange}
               className="w-full border rounded px-2 py-1 dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
@@ -77,7 +100,7 @@ export default function SettingsModal({ open, onClose }) {
               max="1"
               step="0.05"
               value={local.costRatio}
-              onChange={e => setLocal({ ...local, costRatio: Number(e.target.value) })}
+              onChange={handleCostRatioChange}
               className="w-full border rounded px-2 py-1 dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
@@ -102,3 +125,8 @@ export default function SettingsModal({ open, onClose }) {
     </div>
   );
 }
+
+SettingsModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired
+};

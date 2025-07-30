@@ -1,11 +1,25 @@
-// src/components/SelectionSummary.jsx
+// src/components/SelectionSummary.tsx
 import React from 'react';
+import PropTypes from 'prop-types';
+import { SelectionSummaryProps } from '../types/props';
 import { serviceDatabase } from '../services/serviceDatabase';
 
 /**
  * Displays selected services as tags and a button to clear all.
+ * Only appears when services are selected.
+ *
+ * @param {SelectionSummaryProps} props - Component props
+ * @param {string[]} props.selected - Array of selected service keys
+ * @param {Function} props.onClear - Callback to clear all selections
+ * @returns {React.ReactElement|null} Selection summary component or null if no selections
+ * 
+ * @example
+ * <SelectionSummary 
+ *   selected={['exterior-rinse', 'snow-foam']} 
+ *   onClear={() => setSelected([])} 
+ * />
  */
-export default function SelectionSummary({ selected, onClear }) {
+export default function SelectionSummary({ selected, onClear }: SelectionSummaryProps): React.ReactElement | null {
   if (selected.length === 0) return null;
 
   return (
@@ -36,3 +50,8 @@ export default function SelectionSummary({ selected, onClear }) {
     </div>
   );
 }
+
+SelectionSummary.propTypes = {
+  selected: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onClear: PropTypes.func.isRequired
+};

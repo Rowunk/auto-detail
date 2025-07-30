@@ -1,13 +1,19 @@
-// src/services/serviceDatabase.js
+// src/services/serviceDatabase.ts
 //
 // 👉 order = suggested position in professional detailing workflow
-//    (lower number = earlier)
+//    (lower number = earlier)
 //
 // 👉 times  = labour minutes
-// 👉 basePrice = retail CZK incl. VAT
+// 👉 basePrice = retail CZK incl. VAT
 //
 
-export const serviceDatabase = {
+import { ServiceDatabase, VehicleSize } from '../types';
+
+/**
+ * Complete database of auto detailing services with pricing and timing
+ * information for different vehicle conditions.
+ */
+export const serviceDatabase: ServiceDatabase = {
   /* ─────────────── WASH (10‑24) ─────────────── */
   'exterior-rinse': {
     name: 'Oplach karoserie',
@@ -473,8 +479,11 @@ export const serviceDatabase = {
   }
 };
 
-/* Vehicle‑size multipliers */
-export const sizeMultipliers = {
+/**
+ * Multipliers applied to service times and prices based on vehicle size.
+ * Larger vehicles have higher multipliers.
+ */
+export const sizeMultipliers: Record<VehicleSize, number> = {
   small: 0.7,
   sedan: 0.8,
   combi: 0.9,

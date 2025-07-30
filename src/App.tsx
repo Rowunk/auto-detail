@@ -1,47 +1,53 @@
-// src/App.jsx
+// src/App.tsx
 import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
 import { getStorageItem, setStorageItem } from './utils/storage';
+import { ServiceCategory, VehicleCondition } from './types';
 
-import Header              from './components/Header';
-import SearchBar           from './components/SearchBar';
-import CategoryTabs        from './components/CategoryTabs';
-import ServiceCard         from './components/ServiceCard';
-import SelectionSummary    from './components/SelectionSummary';
-import ConditionSelector   from './components/ConditionSelector';
+import Header from './components/Header';
+import SearchBar from './components/SearchBar';
+import CategoryTabs from './components/CategoryTabs';
+import ServiceCard from './components/ServiceCard';
+import SelectionSummary from './components/SelectionSummary';
+import ConditionSelector from './components/ConditionSelector';
 import VehicleSizeSelector from './components/VehicleSizeSelector';
-import ResultCard          from './components/ResultCard';
-import HistorySection      from './components/HistorySection';
-import TipsSection         from './components/TipsSection';
-import BottomNav           from './components/BottomNav';
-import Toast               from './components/Toast';
+import ResultCard from './components/ResultCard';
+import HistorySection from './components/HistorySection';
+import TipsSection from './components/TipsSection';
+import BottomNav from './components/BottomNav';
+import Toast from './components/Toast';
 
 import { serviceDatabase } from './services/serviceDatabase';
 
-/* ───────────────────────────────────────── CALCULATOR VIEW ── */
-function CalculatorView () {
+/**
+ * The calculator view component that handles service selection and calculation.
+ * Manages the main business logic of the application.
+ *
+ * @returns {React.ReactElement} Calculator view component
+ */
+function CalculatorView(): React.ReactElement {
   const { config, setConfig } = useContext(ConfigContext);
 
   /* UI state */
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [searchTerm,     setSearchTerm]     = useState('');
-  const [selected,       setSelected]       = useState([]);
-  const [condition,      setCondition]      = useState(null);
-  const [toast,          setToast]          = useState('');
+  const [activeCategory, setActiveCategory] = useState<ServiceCategory>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selected, setSelected] = useState<string[]>([]);
+  const [condition, setCondition] = useState<VehicleCondition | null>(null);
+  const [toast, setToast] = useState<string>('');
 
   /* helper: sort using the explicit `order` field (fallback: α‑by‑name) */
-  const sortKeys = keys =>
+  const sortKeys = (keys: string[]): string[] =>
     [...keys].sort((a, b) => {
-      const oa = serviceDatabase[a].order ?? 9_999;
-      const ob = serviceDatabase[b].order ?? 9_999;
+      const oa = serviceDatabase[a]?.order ?? 9_999;
+      const ob = serviceDatabase[b]?.order ?? 9_999;
       return oa !== ob
         ? oa - ob
-        : serviceDatabase[a].name.localeCompare(serviceDatabase[b].name);
+        : (serviceDatabase[a]?.name ?? '').localeCompare(serviceDatabase[b]?.name ?? '');
     });
 
   /* toggle a service in/out of the selection */
-  const toggleService = key => {
-    const name = serviceDatabase[key].name;
+  const toggleService = (key: string): void => {
+    const name = serviceDatabase[key]?.name ?? key;
     const isCurrentlySelected = selected.includes(key);
     setSelected(prev =>
       isCurrentlySelected
@@ -51,7 +57,7 @@ function CalculatorView () {
     setToast(isCurrentlySelected ? `Odebráno: ${name}` : `Přidáno: ${name}`);
   };
 
-  /* memoised list of services currently shown in the grid */
+  /* memoized list of services currently shown in the grid */
   const filtered = useMemo(
     () =>
       Object.entries(serviceDatabase)
@@ -59,13 +65,13 @@ function CalculatorView () {
           (activeCategory === 'all' || svc.category === activeCategory) &&
           svc.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
-        .sort(([, a], [, b]) => a.order - b.order),
+        .sort(([, a], [, b]) => (a.order ?? 0) - (b.order ?? 0)),
     [activeCategory, searchTerm]
   );
 
   return (
     <>
-      <SearchBar    value={searchTerm}       onChange={setSearchTerm}     />
+      <SearchBar value={searchTerm} onChange={setSearchTerm} />
       <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
 
       {/* responsive grid */}
@@ -88,9 +94,9 @@ function CalculatorView () {
         current={config.vehicleSize}
         onSelect={size => setConfig(c => ({ ...c, vehicleSize: size }))}
       />
-      <ResultCard 
-        selected={selected} 
-        condition={condition} 
+      <ResultCard
+        selected={selected}
+        condition={condition}
         onToast={setToast}
       />
 
@@ -99,13 +105,25 @@ function CalculatorView () {
   );
 }
 
-/* ──────────────────────────────────────────── APP ROOT ── */
-export default function App () {
+/**
+ * Main application component that manages navigation between views.
+ * Wraps the entire application in the ConfigProvider.
+ *
+ * @returns {React.ReactElement} Root application component
+ */
+function App(): React.ReactElement {
+  type ViewType = 'calc' | 'history' | 'tips';
+  
   /* remember last opened view between refreshes */
-  const [view, setView] = useState(
-    () => getStorageItem('detailingUiView', 'calc')
-  );
+  const [view, setView] = useState<ViewType>('calc');
+  
+  // Load saved view preference after initial render
+  useEffect(() => {
+    const savedView = getStorageItem<ViewType>('detailingUiView', 'calc');
+    setView(savedView);
+  }, []);
 
+  // Save view preference when it changes
   useEffect(() => {
     setStorageItem('detailingUiView', view);
   }, [view]);
@@ -116,9 +134,9 @@ export default function App () {
         <Header />
 
         <main className="flex-1 overflow-y-auto pt-14 pb-14">
-          {view === 'calc'    && <CalculatorView />}
+          {view === 'calc' && <CalculatorView />}
           {view === 'history' && <HistorySection />}
-          {view === 'tips'    && <TipsSection />}
+          {view === 'tips' && <TipsSection />}
         </main>
 
         <BottomNav active={view} onChange={setView} />
@@ -126,3 +144,5 @@ export default function App () {
     </ConfigProvider>
   );
 }
+
+export default App;
