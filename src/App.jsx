@@ -17,14 +17,8 @@ import Toast               from './components/Toast';
 
 import { serviceDatabase } from './services/serviceDatabase';
 
-/* ideal order of categories when we auto‑sort selections */
-const CATEGORY_ORDER = [
-  'wash', 'wheels', 'exterior',
-  'interior', 'protection', 'restoration', 'specialty'
-];
-
 /* ───────────────────────────────────────── CALCULATOR VIEW ── */
-function CalculatorView() {
+function CalculatorView () {
   const { config, setConfig } = useContext(ConfigContext);
 
   /* UI state */
@@ -34,16 +28,15 @@ function CalculatorView() {
   const [condition,      setCondition]      = useState(null);
   const [toast,          setToast]          = useState('');
 
-  /* helper: sort selected service keys in workflow order + alphabetically */
-  const sortKeys = keys => [...keys].sort((a, b) => {
-    const ca = serviceDatabase[a].category;
-    const cb = serviceDatabase[b].category;
-    const pa = CATEGORY_ORDER.indexOf(ca);
-    const pb = CATEGORY_ORDER.indexOf(cb);
-    return pa !== pb
-      ? pa - pb
-      : serviceDatabase[a].name.localeCompare(serviceDatabase[b].name);
-  });
+  /* helper: sort using the explicit `order` field (fallback: α‑by‑name) */
+  const sortKeys = keys =>
+    [...keys].sort((a, b) => {
+      const oa = serviceDatabase[a].order ?? 9_999;
+      const ob = serviceDatabase[b].order ?? 9_999;
+      return oa !== ob
+        ? oa - ob
+        : serviceDatabase[a].name.localeCompare(serviceDatabase[b].name);
+    });
 
   /* toggle a service in/out of the selection */
   const toggleService = key => {
@@ -59,21 +52,21 @@ function CalculatorView() {
   /* memoised list of services currently shown in the grid */
   const filtered = useMemo(
     () =>
-      Object.entries(serviceDatabase).filter(
-        ([, svc]) =>
+      Object.entries(serviceDatabase)
+        .filter(([, svc]) =>
           (activeCategory === 'all' || svc.category === activeCategory) &&
           svc.name.toLowerCase().includes(searchTerm.toLowerCase())
-      ),
+        )
+        .sort(([, a], [, b]) => a.order - b.order),
     [activeCategory, searchTerm]
   );
 
   return (
     <>
-      {/* search + category chips */}
-      <SearchBar   value={searchTerm}       onChange={setSearchTerm}     />
+      <SearchBar    value={searchTerm}       onChange={setSearchTerm}     />
       <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
 
-      {/* responsive service grid */}
+      {/* responsive grid */}
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr gap-2 p-2">
         {filtered.map(([key, svc]) => (
           <ServiceCard
@@ -87,30 +80,24 @@ function CalculatorView() {
         ))}
       </div>
 
-      {/* selection chips + selectors + summary */}
       <SelectionSummary selected={selected} onClear={() => setSelected([])} />
       <ConditionSelector current={condition} onSelect={setCondition} />
       <VehicleSizeSelector
         current={config.vehicleSize}
         onSelect={size => setConfig(c => ({ ...c, vehicleSize: size }))}
       />
-      <ResultCard
-        selected={selected}
-        condition={condition}
-        onToast={setToast}
-      />
+      <ResultCard selected={selected} condition={condition} />
 
-      {/* global toast */}
       {toast && <Toast message={toast} onDismiss={() => setToast('')} />}
     </>
   );
 }
 
 /* ──────────────────────────────────────────── APP ROOT ── */
-export default function App() {
+export default function App () {
   /* remember last opened view between refreshes */
-  const [view, setView] = useState(() =>
-    localStorage.getItem('detailingUiView') || 'calc'
+  const [view, setView] = useState(
+    () => localStorage.getItem('detailingUiView') || 'calc'
   );
 
   useEffect(() => {
@@ -122,7 +109,6 @@ export default function App() {
       <div className="h-screen flex flex-col">
         <Header />
 
-        {/* main content swaps by view; header (top) & nav (bottom) are fixed */}
         <main className="flex-1 overflow-y-auto pt-14 pb-14">
           {view === 'calc'    && <CalculatorView />}
           {view === 'history' && <HistorySection />}

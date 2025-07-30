@@ -1,13 +1,14 @@
 // src/services/serviceDatabase.js
 //
-// 👉  order = suggested position in professional detailing workflow
-//     (lower number = earlier)
+// 👉 order = suggested position in professional detailing workflow
+//    (lower number = earlier)
 //
-// 👉  times  = labour minutes  |  basePrice = retail CZK incl. VAT
+// 👉 times  = labour minutes
+// 👉 basePrice = retail CZK incl. VAT
 //
 
 export const serviceDatabase = {
-  /* ─────────────── WASH  (10‑24) ─────────────── */
+  /* ─────────────── WASH (10‑24) ─────────────── */
   'exterior-rinse': {
     name: 'Oplach karoserie',
     category: 'wash',
@@ -47,8 +48,8 @@ export const serviceDatabase = {
     name: 'Mytí podvozku',
     category: 'wash',
     order: 20,
-    times: { excellent: 15, dirty: 18, neglected: 22, extreme: 25 },
-    basePrice: { excellent: 150, dirty: 180, neglected: 220, extreme: 250 }
+    times: { excellent: 20, dirty: 25, neglected: 30, extreme: 35 },
+    basePrice: { excellent: 400, dirty: 500, neglected: 600, extreme: 700 }
   },
   'door-jambs': {
     name: 'Čištění zárubní dveří',
@@ -65,7 +66,7 @@ export const serviceDatabase = {
     basePrice: { excellent: 50, dirty: 70, neglected: 80, extreme: 100 }
   },
 
-  /* ─────────────── WHEELS  (30‑39) ────────────── */
+  /* ────────────── WHEELS (30‑39) ─────────────── */
   'wheel-cleaning-basic': {
     name: 'Základní mytí kol',
     category: 'wheels',
@@ -109,25 +110,25 @@ export const serviceDatabase = {
     basePrice: { excellent: 150, dirty: 180, neglected: 220, extreme: 300 }
   },
   'wheel-polishing': {
-    name: 'Leštění alu kol',
+    name: 'Leštění alu kol (per wheel)',
     category: 'wheels',
     order: 36,
     times: { excellent: 90, dirty: 105, neglected: 120, extreme: 150 },
     basePrice: { excellent: 1000, dirty: 1150, neglected: 1300, extreme: 1500 }
   },
   'wheel-restoration': {
-    name: 'Renovace poškozených kol',
+    name: 'Renovace poškozených kol (per wheel)',
     category: 'wheels',
     order: 37,
     times: { excellent: 180, dirty: 240, neglected: 300, extreme: 360 },
     basePrice: { excellent: 2000, dirty: 2700, neglected: 3400, extreme: 4000 }
   },
   'wheel-coating': {
-    name: 'Ochranný povlak kol',
+    name: 'Ochranný povlak kol (set 4 ks)',
     category: 'wheels',
     order: 38,
-    times: { excellent: 60, dirty: 75, neglected: 90, extreme: 105 },
-    basePrice: { excellent: 800, dirty: 1000, neglected: 1200, extreme: 1500 }
+    times: { excellent: 120, dirty: 150, neglected: 180, extreme: 210 },
+    basePrice: { excellent: 2000, dirty: 2500, neglected: 3000, extreme: 3500 }
   },
   'lug-nuts-cleaning': {
     name: 'Čištění matic kol',
@@ -137,13 +138,20 @@ export const serviceDatabase = {
     basePrice: { excellent: 200, dirty: 230, neglected: 270, extreme: 300 }
   },
 
-  /* ───────────── EXTERIOR DECON (40‑49) ───────── */
+  /* ─────────── EXTERIOR DECON (40‑49) ─────────── */
   'clay-bar-treatment': {
     name: 'Clay‑bar ošetření',
     category: 'exterior',
     order: 40,
     times: { excellent: 60, dirty: 75, neglected: 90, extreme: 120 },
     basePrice: { excellent: 800, dirty: 950, neglected: 1100, extreme: 1200 }
+  },
+  'iron-decon': {
+    name: 'Odstranění polétavé rzi',
+    category: 'exterior',
+    order: 41,
+    times: { excellent: 30, dirty: 45, neglected: 60, extreme: 75 },
+    basePrice: { excellent: 400, dirty: 500, neglected: 600, extreme: 700 }
   },
   'tar-removal': {
     name: 'Odstranění asfaltu',
@@ -173,28 +181,49 @@ export const serviceDatabase = {
     times: { excellent: 45, dirty: 60, neglected: 75, extreme: 90 },
     basePrice: { excellent: 600, dirty: 800, neglected: 1000, extreme: 1200 }
   },
+  'exterior-trim-restoration': {
+    name: 'Obnova exteriérových plastů',
+    category: 'exterior',
+    order: 46,
+    times: { excellent: 60, dirty: 80, neglected: 100, extreme: 120 },
+    basePrice: { excellent: 900, dirty: 1200, neglected: 1500, extreme: 1800 }
+  },
+  'glass-polishing': {
+    name: 'Leštění autoskel',
+    category: 'exterior',
+    order: 47,
+    times: { excellent: 60, dirty: 75, neglected: 90, extreme: 120 },
+    basePrice: { excellent: 1000, dirty: 1300, neglected: 1600, extreme: 2000 }
+  },
+  'sticker-adhesive-removal': {
+    name: 'Odstranění polepů a zbytků lepidla',
+    category: 'exterior',
+    order: 48,
+    times: { excellent: 45, dirty: 60, neglected: 90, extreme: 120 },
+    basePrice: { excellent: 800, dirty: 1000, neglected: 1300, extreme: 1600 }
+  },
 
-  /* ──────────── PAINT CORRECTION (50‑59) ──────── */
+  /* ───────── PAINT CORRECTION (50‑59) ─────────── */
   'paint-correction-1step': {
     name: 'Korekce laku – 1 krok',
     category: 'exterior',
     order: 50,
-    times: { excellent: 180, dirty: 240, neglected: 300, extreme: 360 },
-    basePrice: { excellent: 2500, dirty: 3000, neglected: 3500, extreme: 4000 }
+    times: { excellent: 360, dirty: 480, neglected: 540, extreme: 600 },
+    basePrice: { excellent: 6000, dirty: 8000, neglected: 9000, extreme: 10000 }
   },
   'paint-correction-2step': {
     name: 'Korekce laku – 2 kroky',
     category: 'exterior',
     order: 52,
-    times: { excellent: 300, dirty: 360, neglected: 420, extreme: 480 },
-    basePrice: { excellent: 4000, dirty: 4800, neglected: 5600, extreme: 6500 }
+    times: { excellent: 600, dirty: 720, neglected: 840, extreme: 960 },
+    basePrice: { excellent: 9000, dirty: 12000, neglected: 14000, extreme: 16000 }
   },
   'paint-correction-3step': {
     name: 'Korekce laku – 3 kroky',
     category: 'exterior',
     order: 54,
-    times: { excellent: 480, dirty: 600, neglected: 720, extreme: 840 },
-    basePrice: { excellent: 6500, dirty: 7500, neglected: 8500, extreme: 10000 }
+    times: { excellent: 960, dirty: 1200, neglected: 1440, extreme: 1800 },
+    basePrice: { excellent: 12000, dirty: 15000, neglected: 18000, extreme: 20000 }
   },
   'wet-sanding': {
     name: 'Mokré broušení',
@@ -224,7 +253,7 @@ export const serviceDatabase = {
     category: 'protection',
     order: 60,
     times: { excellent: 60, dirty: 80, neglected: 100, extreme: 120 },
-    basePrice: { excellent: 1200, dirty: 1500, neglected: 1800, extreme: 2100 }
+    basePrice: { excellent: 1000, dirty: 1200, neglected: 1400, extreme: 1500 }
   },
   'hard-wax': {
     name: 'Tuhý karnaubský vosk',
@@ -245,21 +274,21 @@ export const serviceDatabase = {
     category: 'protection',
     order: 63,
     times: { excellent: 45, dirty: 60, neglected: 75, extreme: 90 },
-    basePrice: { excellent: 900, dirty: 1100, neglected: 1300, extreme: 1500 }
+    basePrice: { excellent: 1000, dirty: 1200, neglected: 1500, extreme: 2000 }
   },
   'leather-protect': {
     name: 'Keramický coating kůže',
     category: 'protection',
     order: 64,
-    times: { excellent: 60, dirty: 80, neglected: 100, extreme: 120 },
-    basePrice: { excellent: 1200, dirty: 1500, neglected: 1800, extreme: 2100 }
+    times: { excellent: 90, dirty: 110, neglected: 130, extreme: 150 },
+    basePrice: { excellent: 3000, dirty: 3500, neglected: 4000, extreme: 5000 }
   },
   'fabric-guard': {
-    name: 'Ochrana čalounění (textil)',
+    name: 'Ochrana čalounění (textil) – nano',
     category: 'protection',
     order: 65,
-    times: { excellent: 40, dirty: 55, neglected: 70, extreme: 85 },
-    basePrice: { excellent: 700, dirty: 900, neglected: 1100, extreme: 1300 }
+    times: { excellent: 60, dirty: 80, neglected: 100, extreme: 120 },
+    basePrice: { excellent: 1500, dirty: 1800, neglected: 2200, extreme: 2500 }
   },
   'ppf-partial-wrap': {
     name: 'PPF – částečný wrap',
@@ -269,13 +298,13 @@ export const serviceDatabase = {
     basePrice: { excellent: 9500, dirty: 11000, neglected: 12500, extreme: 14000 }
   },
 
-  /* ──────────── INTERIOR (70‑77) ─────────────── */
+  /* ──────────── INTERIOR (70‑79) ─────────────── */
   'interior-vacuum': {
     name: 'Kompletní vysávání',
     category: 'interior',
     order: 70,
     times: { excellent: 20, dirty: 30, neglected: 40, extreme: 50 },
-    basePrice: { excellent: 200, dirty: 250, neglected: 300, extreme: 400 }
+    basePrice: { excellent: 300, dirty: 400, neglected: 450, extreme: 500 }
   },
   'dashboard-detail': {
     name: 'Detailní čištění palubovky',
@@ -303,7 +332,7 @@ export const serviceDatabase = {
     category: 'interior',
     order: 74,
     times: { excellent: 45, dirty: 60, neglected: 75, extreme: 90 },
-    basePrice: { excellent: 600, dirty: 800, neglected: 1000, extreme: 1200 }
+    basePrice: { excellent: 800, dirty: 1000, neglected: 1200, extreme: 1500 }
   },
   'steam-cleaning': {
     name: 'Parní dezinfekce kabiny',
@@ -317,17 +346,31 @@ export const serviceDatabase = {
     category: 'interior',
     order: 76,
     times: { excellent: 30, dirty: 40, neglected: 50, extreme: 60 },
-    basePrice: { excellent: 400, dirty: 550, neglected: 700, extreme: 800 }
+    basePrice: { excellent: 500, dirty: 650, neglected: 800, extreme: 900 }
   },
   'fabric-protection': {
-    name: 'Impregnace látek',
+    name: 'Impregnace látek (standard)',
     category: 'interior',
     order: 77,
     times: { excellent: 30, dirty: 40, neglected: 50, extreme: 60 },
     basePrice: { excellent: 500, dirty: 650, neglected: 800, extreme: 950 }
   },
+  'hvac-sanitization': {
+    name: 'Dezinfekce klimatizace',
+    category: 'interior',
+    order: 78,
+    times: { excellent: 20, dirty: 30, neglected: 40, extreme: 50 },
+    basePrice: { excellent: 400, dirty: 500, neglected: 600, extreme: 700 }
+  },
+  'headliner-cleaning': {
+    name: 'Čištění stropnice',
+    category: 'interior',
+    order: 79,
+    times: { excellent: 40, dirty: 60, neglected: 90, extreme: 120 },
+    basePrice: { excellent: 800, dirty: 1000, neglected: 1300, extreme: 1600 }
+  },
 
-  /* ─────────── RESTORATION (80‑85) ───────────── */
+  /* ─────────── RESTORATION (80‑86) ───────────── */
   'paint-chip-repair': {
     name: 'Lepení odštěpků laku',
     category: 'restoration',
@@ -360,8 +403,8 @@ export const serviceDatabase = {
     name: 'Oprava + impregnace střechy cabria',
     category: 'restoration',
     order: 84,
-    times: { excellent: 180, dirty: 240, neglected: 300, extreme: 360 },
-    basePrice: { excellent: 3500, dirty: 4200, neglected: 5000, extreme: 5800 }
+    times: { excellent: 120, dirty: 160, neglected: 200, extreme: 240 },
+    basePrice: { excellent: 1800, dirty: 2200, neglected: 2600, extreme: 3000 }
   },
   'emblem-restoration': {
     name: 'Leštění a lakování emblémů',
@@ -369,6 +412,13 @@ export const serviceDatabase = {
     order: 85,
     times: { excellent: 60, dirty: 75, neglected: 90, extreme: 105 },
     basePrice: { excellent: 800, dirty: 1000, neglected: 1200, extreme: 1400 }
+  },
+  'instrument-cluster-polish': {
+    name: 'Leštění budíků a dekorů',
+    category: 'restoration',
+    order: 86,
+    times: { excellent: 45, dirty: 60, neglected: 75, extreme: 90 },
+    basePrice: { excellent: 500, dirty: 700, neglected: 900, extreme: 1100 }
   },
 
   /* ─────────── SPECIALTY (90‑96) ─────────────── */
