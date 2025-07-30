@@ -72,9 +72,11 @@ ${breakdown.map(b => `• ${b.name} – ${fmtTime(b.time)}, ${b.price} Kč`).joi
     try {
       if (navigator.share) {
         await navigator.share({ title: 'Detailing zakázka', text: shareText });
-      } else {
+      } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(shareText);
         toast('Shrnutí zkopírováno do schránky 📋');
+      } else {
+        toast('Sdílení není podporováno na tomto zařízení');
       }
     } catch (e) {
       toast('Sdílení zrušeno');
