@@ -5,36 +5,55 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
+  /*  GitHub Pages serves the site at /auto-detail/  */
+  base: '/auto-detail/',
+
   plugins: [
     react(),
+
+    /* Offline‑first PWA — generates service‑worker + manifest.json */
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'robots.txt'],
+
       manifest: {
-        name:        'Detailing Kalkulačka Pro+',
-        short_name:  'DK Pro+',
-        description: 'Granulární kalkulátor auto‑detailingu',
-        start_url:   '/',
-        display:     'standalone',
+        name: 'Detailing Kalkulačka Pro+',
+        short_name: 'DetKalk',
+        description: 'Granulární kalkulačka auto detailingu',
+        start_url: '/auto-detail/',
         theme_color: '#2c3e50',
-        background_color: '#1f2937',
+        background_color: '#ffffff',
+        display: 'standalone',
+
         icons: [
-          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' }
-        ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
+          { src: '/auto-detail/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/auto-detail/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts' }
+            src: '/auto-detail/icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }
     })
   ],
-  resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
-  css: { postcss: { plugins: [require('tailwindcss'), require('autoprefixer')] } }
+
+  /* nice “@/” import alias */
+  resolve: {
+    alias: { '@': path.resolve(__dirname, 'src') }
+  },
+
+  /* Tailwind + Autoprefixer pipeline */
+  css: {
+    postcss: {
+      plugins: [require('tailwindcss'), require('autoprefixer')]
+    }
+  },
+
+  /* optional tweak: silence source‑maps in prod */
+  build: {
+    outDir: 'dist',
+    sourcemap: false
+  }
 });
