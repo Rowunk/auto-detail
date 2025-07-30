@@ -11,11 +11,11 @@ node_modules/
 .package-lock.json#
 
 # ───────────────────────── Vite / Build ─────────────────────
-dist/               # vite build output
-*.local             # vite env files (vite treats *.local as secrets)
+dist/
+*.local
 .env.local
 .env.*.local
-.vite/              # vite cache (if enabled)
+.vite/
 
 # ───────────────────────── Tailwind / PostCSS ──────────────
 .postcssrc
@@ -36,6 +36,6 @@ ehthumbs.db
 Desktop.ini
 
 # ───────────────────────── Misc. ───────────────────────────
-coverage/           # jest / vitest
-*.tgz               # npm pack
-*.orig              # merge conflict backups
+coverage/
+*.tgz
+*.orig
