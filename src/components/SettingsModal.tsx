@@ -1,9 +1,10 @@
 // src/components/SettingsModal.tsx
-import React, { useContext, useEffect, useState, ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
-import { SettingsModalProps } from '../types/props';
-import { AppConfig } from '../types';
+import type { SettingsModalProps } from '../types/props';
+import type { AppConfig } from '../types';
 
 /**
  * Modal dialog for global settings (Nastavení).

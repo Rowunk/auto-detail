@@ -1,7 +1,7 @@
 // src/components/Toast.tsx
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { ToastProps } from '../types/props';
+import type { ToastProps } from '../types/props';
 
 /**
  * Toast notification that auto-dismisses after 2.5s.

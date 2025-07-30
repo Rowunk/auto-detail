@@ -7,7 +7,7 @@
 // 👉 basePrice = retail CZK incl. VAT
 //
 
-import { ServiceDatabase, VehicleSize } from '../types';
+import type { ServiceDatabase, VehicleSize } from '../types';
 
 /**
  * Complete database of auto detailing services with pricing and timing

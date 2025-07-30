@@ -2,7 +2,7 @@
 import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
 import { getStorageItem, setStorageItem } from './utils/storage';
-import { ServiceCategory, VehicleCondition } from './types';
+import type { ServiceCategory, VehicleCondition } from './types';
 
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';

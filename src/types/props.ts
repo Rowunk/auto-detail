@@ -1,10 +1,11 @@
 // src/types/props.ts
-import { ReactNode } from 'react';
-import { 
+import type { ReactNode } from 'react';
+import type { 
   VehicleCondition, 
   VehicleSize, 
   ServiceCategory, 
-  ServiceItem,
+  ServiceItem} from './index';
+import {
   AppConfig
 } from './index';
 

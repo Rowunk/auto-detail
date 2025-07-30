@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
 import { serviceDatabase, sizeMultipliers } from '../services/serviceDatabase';
 import { getStorageItem, setStorageItem } from '../utils/storage';
-import { ResultCardProps } from '../types/props';
-import { VehicleCondition, HistoryEntry } from '../types';
+import type { ResultCardProps } from '../types/props';
+import type { VehicleCondition, HistoryEntry } from '../types';
 
 type ServiceBreakdown = {
   name: string;

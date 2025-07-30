@@ -2,8 +2,8 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { getStorageItem, setStorageItem, isStorageAvailable } from '../utils/storage';
-import { AppConfig, ConfigContextType } from '../types';
-import { ConfigProviderProps } from '../types/props';
+import type { AppConfig, ConfigContextType } from '../types';
+import type { ConfigProviderProps } from '../types/props';
 
 // Default configuration
 const defaultConfig: AppConfig = {

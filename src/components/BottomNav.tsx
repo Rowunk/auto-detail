@@ -1,7 +1,7 @@
 // src/components/BottomNav.tsx
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BottomNavProps } from '../types/props';
+import type { BottomNavProps } from '../types/props';
 
 type TabKey = 'calc' | 'history' | 'tips';
 

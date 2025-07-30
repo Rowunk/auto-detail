@@ -1,8 +1,8 @@
 // src/components/VehicleSizeSelector.tsx
 import React from 'react';
 import PropTypes from 'prop-types';
-import { VehicleSizeSelectorProps } from '../types/props';
-import { VehicleSize } from '../types';
+import type { VehicleSizeSelectorProps } from '../types/props';
+import type { VehicleSize } from '../types';
 
 type SizeInfo = {
   key: VehicleSize;

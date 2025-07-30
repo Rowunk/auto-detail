@@ -3,8 +3,8 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
 import { sizeMultipliers } from '../services/serviceDatabase';
-import { ServiceCardProps } from '../types/props';
-import { VehicleCondition } from '../types';
+import type { ServiceCardProps } from '../types/props';
+import type { VehicleCondition } from '../types';
 
 /**
  * Card component for an individual detailing service.

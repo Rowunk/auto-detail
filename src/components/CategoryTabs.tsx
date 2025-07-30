@@ -1,8 +1,8 @@
 // src/components/CategoryTabs.tsx
 import React from 'react';
 import PropTypes from 'prop-types';
-import { CategoryTabsProps } from '../types/props';
-import { ServiceCategory } from '../types';
+import type { CategoryTabsProps } from '../types/props';
+import type { ServiceCategory } from '../types';
 
 type CategoryInfo = {
   key: ServiceCategory;

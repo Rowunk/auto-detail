@@ -1,8 +1,9 @@
 // src/components/SearchBar.tsx
-import React, { useEffect, useMemo, useState, ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash.debounce';
-import { SearchBarProps } from '../types/props';
+import type { SearchBarProps } from '../types/props';
 
 /**
  * Debounced text search bar for filtering services.

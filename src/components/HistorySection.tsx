@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { getStorageItem, setStorageItem, removeStorageItem } from '../utils/storage';
 import { ConfigContext } from '../contexts/ConfigContext';
 import { HistorySectionProps } from '../types/props';
-import { HistoryEntry } from '../types';
+import type { HistoryEntry } from '../types';
 import Toast from './Toast';
 
 /**

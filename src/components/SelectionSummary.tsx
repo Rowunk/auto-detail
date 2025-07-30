@@ -1,7 +1,7 @@
 // src/components/SelectionSummary.tsx
 import React from 'react';
 import PropTypes from 'prop-types';
-import { SelectionSummaryProps } from '../types/props';
+import type { SelectionSummaryProps } from '../types/props';
 import { serviceDatabase } from '../services/serviceDatabase';
 
 /**

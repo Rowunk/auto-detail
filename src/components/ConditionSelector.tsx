@@ -1,8 +1,8 @@
 // src/components/ConditionSelector.tsx
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ConditionSelectorProps } from '../types/props';
-import { VehicleCondition } from '../types';
+import type { ConditionSelectorProps } from '../types/props';
+import type { VehicleCondition } from '../types';
 
 type ConditionInfo = {
   key: VehicleCondition;
