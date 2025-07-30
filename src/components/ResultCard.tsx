@@ -4,19 +4,9 @@ import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
 import { serviceDatabase, sizeMultipliers } from '../services/serviceDatabase';
 import { getStorageItem, setStorageItem } from '../utils/storage';
-import { formatMinutes } from '../utils/format';
 import type { ResultCardProps } from '../types/props';
 import type { VehicleCondition, HistoryEntry } from '../types';
 
-type ServiceBreakdown = {
-  name: string;
-  time: number;
-  price: number;
-};
-
-/**
- * Shows calculation results and offers save/share functionality.
- */
 export default function ResultCard({
   selected = [],
   condition = null,
@@ -30,17 +20,20 @@ export default function ResultCard({
   const condKey: VehicleCondition = condition ?? 'excellent';
   const needsCond = condition == null;
 
-  // calculate totals & breakdown
   let totalTime = 0;
   let totalPrice = 0;
-  const breakdown: ServiceBreakdown[] = selected.map(key => {
+
+  const breakdown = selected.map(key => {
     const svc = serviceDatabase[key];
     const baseTime = svc.times[condKey];
     const basePrice = svc.basePrice[condKey];
+
     const time = Math.round((baseTime * sizeMultipliers[vehicleSize]) / workers);
     const price = Math.round(basePrice * sizeMultipliers[vehicleSize]);
+
     totalTime += time;
     totalPrice += price;
+
     return { name: svc.name, time, price };
   });
 
@@ -48,35 +41,42 @@ export default function ResultCard({
   const profit = Math.round(totalPrice - cost);
   const marginPct = Math.round((profit / totalPrice) * 100);
 
-  const toast = (msg: string) => onToast?.(msg);
+  const fmtTime = (m: number): string => {
+    const h = Math.floor(m / 60);
+    const s = m % 60;
+    return h ? `${h}h${s ? ' ' + s + ' min' : ''}` : `${s} min`;
+  };
+
+  const toast = (msg: string): void => {
+    onToast?.(msg);
+  };
 
   const handleSave = (): void => {
     if (!storageAvailable) {
       toast('Uložení není možné – lokální úložiště není dostupné');
       return;
     }
+
     const history = getStorageItem<HistoryEntry[]>('detailingHistoryGranular', []);
     const newEntry: HistoryEntry = {
       services: selected,
       condition: condKey,
       vehicleSize,
       price: totalPrice,
-      time: formatMinutes(totalTime),
+      time: fmtTime(totalTime),
       date: new Date().toLocaleDateString('cs-CZ')
     };
-    const newHistory = [...history, newEntry];
-    const saved = setStorageItem('detailingHistoryGranular', newHistory);
-    toast(saved ? 'Zakázka uložena ✅' : 'Uložení selhalo – zkuste smazat staré zakázky ⚠️');
+    const saved = setStorageItem('detailingHistoryGranular', [...history, newEntry]);
+
+    toast(saved ? 'Zakázka uložena ✅' : 'Uložení selhalo ⚠️');
   };
 
   const shareText = `
 🚗 Detailing – ${totalPrice} Kč
 Služeb: ${selected.length}
 Stav: ${condKey}
-Čas: ${formatMinutes(totalTime)}
-${breakdown
-      .map(b => `• ${b.name} – ${formatMinutes(b.time)}, ${b.price} Kč`)
-      .join('\n')}
+Čas: ${fmtTime(totalTime)}
+${breakdown.map(b => `• ${b.name} – ${fmtTime(b.time)}, ${b.price} Kč`).join('\n')}
   `.trim();
 
   const handleShare = async (): Promise<void> => {
@@ -106,7 +106,7 @@ ${breakdown
             ? serviceDatabase[selected[0]].name
             : `${selected.length} služeb`}
         </h3>
-        <span className="uppercase">{condition ?? '—'}</span>
+        <span className="uppercase">{condKey}</span>
       </div>
 
       {needsCond && (
@@ -117,7 +117,7 @@ ${breakdown
 
       <div className="grid grid-cols-2 gap-4 mb-4 text-center">
         <div>
-          <div className="text-2xl font-bold">{formatMinutes(totalTime)}</div>
+          <div className="text-2xl font-bold">{fmtTime(totalTime)}</div>
           <div className="text-xs opacity-80">Celkový čas</div>
         </div>
         <div>
@@ -129,8 +129,12 @@ ${breakdown
       <div className="bg-white bg-opacity-20 p-3 rounded mb-4 text-xs">
         {breakdown.map((b, i) => (
           <div key={i} className="flex justify-between mb-1">
-            <span>{i + 1}. {b.name}</span>
-            <span>{formatMinutes(b.time)} | {b.price} Kč</span>
+            <span>
+              {i + 1}. {b.name}
+            </span>
+            <span>
+              {fmtTime(b.time)} | {b.price} Kč
+            </span>
           </div>
         ))}
       </div>
