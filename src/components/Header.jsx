@@ -1,5 +1,6 @@
 // src/components/Header.jsx
 import React, { useEffect, useState } from 'react';
+import { getStorageItem, setStorageItem } from '../utils/storage';
 import SettingsModal from './SettingsModal';
 
 /**
@@ -8,11 +9,12 @@ import SettingsModal from './SettingsModal';
 export default function Header() {
   /* Dark‑mode handling */
   const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem('theme') === 'dark'
+    () => getStorageItem('theme') === 'dark'
   );
+  
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+    setStorageItem('theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
   /* Settings modal */

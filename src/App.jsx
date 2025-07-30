@@ -1,6 +1,7 @@
 // src/App.jsx
 import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
+import { getStorageItem, setStorageItem } from './utils/storage';
 
 import Header              from './components/Header';
 import SearchBar           from './components/SearchBar';
@@ -87,7 +88,11 @@ function CalculatorView () {
         current={config.vehicleSize}
         onSelect={size => setConfig(c => ({ ...c, vehicleSize: size }))}
       />
-      <ResultCard selected={selected} condition={condition} />
+      <ResultCard 
+        selected={selected} 
+        condition={condition} 
+        onToast={setToast}
+      />
 
       {toast && <Toast message={toast} onDismiss={() => setToast('')} />}
     </>
@@ -98,11 +103,11 @@ function CalculatorView () {
 export default function App () {
   /* remember last opened view between refreshes */
   const [view, setView] = useState(
-    () => localStorage.getItem('detailingUiView') || 'calc'
+    () => getStorageItem('detailingUiView', 'calc')
   );
 
   useEffect(() => {
-    localStorage.setItem('detailingUiView', view);
+    setStorageItem('detailingUiView', view);
   }, [view]);
 
   return (

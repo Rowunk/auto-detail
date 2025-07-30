@@ -2,13 +2,20 @@
 import React, { useContext } from 'react';
 import { ConfigContext } from '../contexts/ConfigContext';
 import { serviceDatabase, sizeMultipliers } from '../services/serviceDatabase';
+import { getStorageItem, setStorageItem } from '../utils/storage';
 
+/**
+ * Shows calculation results and offers save/share functionality
+ * @param {Array} selected - Array of selected service keys
+ * @param {string} condition - Current vehicle condition
+ * @param {function} onToast - Callback for displaying toast messages
+ */
 export default function ResultCard({
   selected = [],
   condition,
-  onToast            // <-- new callback prop
+  onToast
 }) {
-  const { config } = useContext(ConfigContext);
+  const { config, storageAvailable } = useContext(ConfigContext);
   const { vehicleSize, workers, costRatio } = config;
 
   if (selected.length === 0) return null;
@@ -40,24 +47,36 @@ export default function ResultCard({
 
   const fmtTime = m => {
     const h = Math.floor(m / 60), s = m % 60;
-    return h ? `${h}h${s ? ' ' + s + ' min' : ''}` : `${s} min`;
+    return h ? `${h}h${s ? ' ' + s + ' min' : ''}` : `${s} min`;
   };
 
   /* ---------- helpers for buttons ---------- */
   const toast = msg => onToast && onToast(msg);
 
   const handleSave = () => {
-    const history = JSON.parse(localStorage.getItem('detailingHistoryGranular') || '[]');
-    history.push({
+    if (!storageAvailable) {
+      toast('Uložení není možné - lokální úložiště není dostupné');
+      return;
+    }
+    
+    const history = getStorageItem('detailingHistoryGranular', []);
+    const newEntry = {
       services: selected,
       condition: condKey,
       vehicleSize,
       price: totalPrice,
       time: fmtTime(totalTime),
       date: new Date().toLocaleDateString('cs-CZ')
-    });
-    localStorage.setItem('detailingHistoryGranular', JSON.stringify(history));
-    toast('Zakázka uložena ✅');
+    };
+    
+    const newHistory = [...history, newEntry];
+    const saved = setStorageItem('detailingHistoryGranular', newHistory);
+    
+    if (saved) {
+      toast('Zakázka uložena ✅');
+    } else {
+      toast('Uložení selhalo. Zkuste smazat staré zakázky ⚠️');
+    }
   };
 
   const shareText = `
@@ -101,7 +120,7 @@ ${breakdown.map(b => `• ${b.name} – ${fmtTime(b.time)}, ${b.price} Kč`).joi
       {needsCond && (
         <div className="mb-4 text-xs bg-white bg-opacity-20 p-2 rounded">
           ⚠️ Vyberte <strong>Stav vozidla</strong>.  
-          Zatím se počítá s „excellent“.
+          Zatím se počítá s „excellent".
         </div>
       )}
 
@@ -111,7 +130,7 @@ ${breakdown.map(b => `• ${b.name} – ${fmtTime(b.time)}, ${b.price} Kč`).joi
           <div className="text-xs opacity-80">Celkový čas</div>
         </div>
         <div>
-          <div className="text-2xl font-bold">{totalPrice} Kč</div>
+          <div className="text-2xl font-bold">{totalPrice} Kč</div>
           <div className="text-xs opacity-80">Celková cena</div>
         </div>
       </div>
@@ -128,7 +147,7 @@ ${breakdown.map(b => `• ${b.name} – ${fmtTime(b.time)}, ${b.price} Kč`).joi
       <div className="grid grid-cols-3 gap-4 mb-4 text-center text-xs">
         <div>
           <div className="opacity-80">Náklady</div>
-          <div className="font-semibold">{cost} Kč</div>
+          <div className="font-semibold">{cost} Kč</div>
         </div>
         <div>
           <div className="opacity-80">Marže</div>
@@ -136,7 +155,7 @@ ${breakdown.map(b => `• ${b.name} – ${fmtTime(b.time)}, ${b.price} Kč`).joi
         </div>
         <div>
           <div className="opacity-80">Zisk</div>
-          <div className="font-semibold">{profit} Kč</div>
+          <div className="font-semibold">{profit} Kč</div>
         </div>
       </div>
 
