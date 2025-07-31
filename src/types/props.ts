@@ -1,5 +1,4 @@
 // src/types/props.ts
-
 import type { ReactNode } from 'react';
 import type {
   VehicleCondition,
@@ -12,7 +11,6 @@ import type {
  * Props for the Header component
  */
 export interface HeaderProps {
-  /** Called when the user clicks the gear icon */
   onOpenConfigSidebar: () => void;
 }
 
@@ -20,13 +18,9 @@ export interface HeaderProps {
  * Props for the CalculatorView component
  */
 export interface CalculatorViewProps {
-  /** Current vehicle condition (or null for default) */
   condition: VehicleCondition | null;
-  /** Update the selected vehicle condition */
   onConditionChange: (condition: VehicleCondition) => void;
-  /** Currently selected service keys */
   selected: string[];
-  /** Update the selected services array */
   onSelectedChange: (services: string[]) => void;
 }
 
@@ -38,19 +32,13 @@ export interface ConfigSidebarProps {
   open: boolean;
   /** Close the sidebar */
   onClose: () => void;
-  /** Current vehicle condition */
-  condition: VehicleCondition | null;
-  /** Update the vehicle condition */
-  onConditionChange: (condition: VehicleCondition) => void;
 }
 
 /**
  * Props for the ReportPanel component
  */
 export interface ReportPanelProps {
-  /** Currently selected service keys */
   selected: string[];
-  /** Current vehicle condition */
   condition: VehicleCondition | null;
 }
 
@@ -58,10 +46,6 @@ export interface ReportPanelProps {
  * Props for the HistorySection component
  */
 export interface HistorySectionProps {
-  /**
-   * Callback when the user clicks “Kopírovat služby”
-   * to pre‐select those services in the calculator
-   */
   onCopyServices?: (services: string[]) => void;
 }
 
@@ -79,9 +63,7 @@ export interface ServiceManagerProps { }
  * Props for the TemplateManager component
  */
 export interface TemplateManagerProps {
-  /** Apply a saved template’s service list */
   onApply: (services: string[]) => void;
-  /** Close the template manager */
   onClose: () => void;
 }
 
@@ -89,9 +71,7 @@ export interface TemplateManagerProps {
  * Props for the BottomNav component
  */
 export interface BottomNavProps {
-  /** Currently active tab */
   active: 'calc' | 'history' | 'tips' | 'services';
-  /** Change the active tab */
   onChange: (key: 'calc' | 'history' | 'tips' | 'services') => void;
 }
 
@@ -99,9 +79,7 @@ export interface BottomNavProps {
  * Props for the CategoryTabs component
  */
 export interface CategoryTabsProps {
-  /** Currently selected service category */
   active: ServiceCategory;
-  /** Change the selected category */
   onChange: (category: ServiceCategory) => void;
 }
 
@@ -109,9 +87,7 @@ export interface CategoryTabsProps {
  * Props for the SearchBar component
  */
 export interface SearchBarProps {
-  /** Current search term */
   value: string;
-  /** Callback when the search term changes */
   onChange: (value: string) => void;
 }
 
@@ -119,15 +95,10 @@ export interface SearchBarProps {
  * Props for the ServiceCard component
  */
 export interface ServiceCardProps {
-  /** Unique key of the service */
   serviceKey: string;
-  /** Service data */
   service: ServiceItem;
-  /** Whether this service is selected */
   isSelected: boolean;
-  /** Toggle selection of this service */
   toggle: (key: string) => void;
-  /** Current vehicle condition */
   currentCondition: VehicleCondition | null;
 }
 
@@ -135,9 +106,7 @@ export interface ServiceCardProps {
  * Props for the SelectionSummary component
  */
 export interface SelectionSummaryProps {
-  /** Currently selected service keys */
   selected: string[];
-  /** Clear all selections */
   onClear: () => void;
 }
 
@@ -145,11 +114,8 @@ export interface SelectionSummaryProps {
  * Props for the ResultCard component
  */
 export interface ResultCardProps {
-  /** Currently selected service keys */
   selected: string[];
-  /** Current vehicle condition */
   condition: VehicleCondition | null;
-  /** Toast callback for notifications */
   onToast?: (message: string) => void;
 }
 
@@ -157,9 +123,7 @@ export interface ResultCardProps {
  * Props for the ConditionSelector component
  */
 export interface ConditionSelectorProps {
-  /** Currently selected vehicle condition */
   current: VehicleCondition | null;
-  /** Select a new vehicle condition */
   onSelect: (condition: VehicleCondition) => void;
 }
 
@@ -167,9 +131,7 @@ export interface ConditionSelectorProps {
  * Props for the VehicleSizeSelector component
  */
 export interface VehicleSizeSelectorProps {
-  /** Currently selected vehicle size */
   current: VehicleSize;
-  /** Select a new vehicle size */
   onSelect: (size: VehicleSize) => void;
 }
 
@@ -177,7 +139,6 @@ export interface VehicleSizeSelectorProps {
  * Props for the ConfigProvider component
  */
 export interface ConfigProviderProps {
-  /** Child components */
   children: ReactNode;
 }
 
@@ -185,8 +146,6 @@ export interface ConfigProviderProps {
  * Props for the Toast component
  */
 export interface ToastProps {
-  /** Message to display */
   message: string;
-  /** Dismiss the toast */
   onDismiss: () => void;
 }

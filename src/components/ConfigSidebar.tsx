@@ -2,27 +2,22 @@
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
-import ConditionSelector from './ConditionSelector';
 import VehicleSizeSelector from './VehicleSizeSelector';
 import type { ConfigSidebarProps } from '../types/props';
 
 export default function ConfigSidebar({
     open,
-    onClose,
-    condition,
-    onConditionChange
+    onClose
 }: ConfigSidebarProps): React.ReactElement | null {
     const { config, setConfig } = useContext(ConfigContext);
     const [localConfig, setLocalConfig] = useState(config);
-    const [localCondition, setLocalCondition] = useState(condition);
 
     // Sync local state when sidebar opens
     useEffect(() => {
         if (open) {
             setLocalConfig(config);
-            setLocalCondition(condition);
         }
-    }, [open, config, condition]);
+    }, [open, config]);
 
     // Close on Escape
     useEffect(() => {
@@ -38,7 +33,6 @@ export default function ConfigSidebar({
 
     const save = (): void => {
         setConfig(localConfig);
-        if (localCondition !== null) onConditionChange(localCondition);
         onClose();
     };
 
@@ -77,15 +71,7 @@ export default function ConfigSidebar({
                 </header>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                    {/* Vehicle Settings */}
-                    <section>
-                        <h3 className="font-semibold mb-2">🚗 Stav vozidla</h3>
-                        <ConditionSelector
-                            current={localCondition}
-                            onSelect={setLocalCondition}
-                        />
-                    </section>
-
+                    {/* Vehicle Size */}
                     <section>
                         <h3 className="font-semibold mb-2">🚚 Velikost vozidla</h3>
                         <VehicleSizeSelector
@@ -179,7 +165,5 @@ export default function ConfigSidebar({
 
 ConfigSidebar.propTypes = {
     open: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    condition: PropTypes.oneOf(['excellent', 'dirty', 'neglected', 'extreme', null]),
-    onConditionChange: PropTypes.func.isRequired
+    onClose: PropTypes.func.isRequired
 };
