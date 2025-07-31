@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useState, useMemo, useEffect, useContext } from 'react';
 import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
-import { setStorageItem, getStorageItem } from './utils/storage';
+import { getStorageItem, setStorageItem } from './utils/storage';
 import { useLocalStorageState } from './hooks/useLocalStorageState';
 import { isVehicleCondition, isServiceItemArray } from './utils/validators';
 import type { ServiceCategory, VehicleCondition, ServiceItem } from './types';
@@ -16,6 +16,7 @@ import HistorySection from './components/HistorySection';
 import TipsSection from './components/TipsSection';
 import ServiceManager from './components/ServiceManager';
 import ConfigSidebar from './components/ConfigSidebar';
+import TemplateManager, { ServiceTemplate } from './components/TemplateManager';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 
@@ -26,9 +27,6 @@ interface CalculatorViewProps {
   onConditionChange: (c: VehicleCondition) => void;
 }
 
-/**
- * Split-screen calculator: left = service grid, right = ever-present report.
- */
 function CalculatorView({
   condition,
   onConditionChange
@@ -39,6 +37,7 @@ function CalculatorView({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selected, setSelected] = useState<string[]>([]);
   const [toast, setToast] = useState<string>('');
+  const [showTemplates, setShowTemplates] = useState<boolean>(false);
 
   // Persisted & validated custom services
   const [customServices] = useLocalStorageState(
@@ -62,18 +61,18 @@ function CalculatorView({
     return result;
   }, [customServices]);
 
-  // Sorting helper
+  // Sort helper
   const sortKeys = (keys: string[]): string[] =>
     [...keys].sort((a, b) => {
-      const oa = mergedServices[a]?.order ?? 9999;
-      const ob = mergedServices[b]?.order ?? 9999;
+      const oa = mergedServices[a]?.order ?? 9_999;
+      const ob = mergedServices[b]?.order ?? 9_999;
       return oa !== ob
         ? oa - ob
         : (mergedServices[a]?.name ?? '').localeCompare(mergedServices[b]?.name ?? '');
     });
 
   // Toggle selection
-  const toggleService = (key: string) => {
+  const toggleService = (key: string): void => {
     const name = mergedServices[key]?.name ?? key;
     const isSel = selected.includes(key);
     setSelected(prev =>
@@ -82,7 +81,7 @@ function CalculatorView({
     setToast(isSel ? `Odebráno: ${name}` : `Přidáno: ${name}`);
   };
 
-  // Filtered & sorted
+  // Filter + sort
   const filtered = useMemo(
     () =>
       Object.entries(mergedServices)
@@ -95,53 +94,86 @@ function CalculatorView({
   );
 
   return (
-    <div className="flex flex-1 overflow-hidden">
-      {/* Left: filters + grid */}
-      <div className="flex-[3] flex flex-col overflow-y-auto">
-        <SearchBar value={searchTerm} onChange={setSearchTerm} />
-        <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
+    <>
+      {/* Templates modal */}
+      {showTemplates && (
+        <TemplateManager
+          onApply={services => {
+            setSelected(services);
+            setShowTemplates(false);
+          }}
+          onClose={() => setShowTemplates(false)}
+        />
+      )}
 
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 p-2 auto-rows-fr">
-          {filtered.map(([key, svc]) => (
-            <ServiceCard
-              key={key}
-              serviceKey={key}
-              service={svc}
-              isSelected={selected.includes(key)}
-              toggle={toggleService}
-              currentCondition={condition}
-            />
-          ))}
+      {/* Split screen */}
+      <div
+        className="flex flex-col lg:flex-row flex-1 overflow-hidden"
+        role="region"
+        aria-label="Calculator split-screen"
+      >
+        {/* Left pane */}
+        <div
+          className="w-full lg:flex-[3] flex flex-col overflow-y-auto"
+          role="region"
+          aria-label="Service selection"
+        >
+          <div className="p-2 flex justify-end">
+            <button
+              onClick={() => setShowTemplates(true)}
+              className="bg-indigo-600 text-white px-3 py-1 rounded"
+            >
+              Šablony
+            </button>
+          </div>
+
+          <SearchBar value={searchTerm} onChange={setSearchTerm} />
+          <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
+
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 p-2 auto-rows-fr">
+            {filtered.map(([key, svc]) => (
+              <ServiceCard
+                key={key}
+                serviceKey={key}
+                service={svc}
+                isSelected={selected.includes(key)}
+                toggle={toggleService}
+                currentCondition={condition}
+              />
+            ))}
+          </div>
+
+          <SelectionSummary selected={selected} onClear={() => setSelected([])} />
         </div>
 
-        <SelectionSummary selected={selected} onClear={() => setSelected([])} />
+        {/* Right pane */}
+        <div
+          className="w-full lg:flex-[1] border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700 p-4"
+          role="complementary"
+          aria-label="Summary report"
+        >
+          <ReportPanel selected={selected} condition={condition} />
+        </div>
       </div>
 
-      {/* Right: report */}
-      <div className="flex-[1] border-l border-gray-200 dark:border-gray-700 p-4">
-        <ReportPanel selected={selected} condition={condition} />
-      </div>
-    </div>
+      {toast && <Toast message={toast} onDismiss={() => setToast('')} />}
+    </>
   );
 }
 
-/**
- * App root: view switching, config sidebar, and persistent condition.
- */
 function App(): React.ReactElement {
   type ViewType = 'calc' | 'history' | 'tips' | 'services';
 
   const [view, setView] = useState<ViewType>('calc');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
-  // Persisted vehicle condition across reloads & tabs
+  // Persisted vehicle condition
   const [condition, setCondition] = useLocalStorageState<VehicleCondition | null>(
     'detailingCondition',
     null,
     x => x === null || isVehicleCondition(x)
   );
 
-  // Persist last‐view
   useEffect(() => {
     const saved = getStorageItem<ViewType>('detailingUiView', 'calc');
     setView(saved);

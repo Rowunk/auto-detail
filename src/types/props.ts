@@ -153,3 +153,9 @@ export interface ToastProps {
   /** Callback when toast is dismissed */
   onDismiss: () => void;
 }
+
+// ServiceTemplates
+export interface TemplateManagerProps {
+  onApply: (services: string[]) => void;
+  onClose: () => void;
+}
