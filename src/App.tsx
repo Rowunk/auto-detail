@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useState, useContext, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useContext } from 'react';
 import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
 import { getStorageItem, setStorageItem } from './utils/storage';
 import type { ServiceCategory, VehicleCondition, ServiceItem } from './types';
@@ -9,36 +9,39 @@ import SearchBar from './components/SearchBar';
 import CategoryTabs from './components/CategoryTabs';
 import ServiceCard from './components/ServiceCard';
 import SelectionSummary from './components/SelectionSummary';
-import ConditionSelector from './components/ConditionSelector';
-import VehicleSizeSelector from './components/VehicleSizeSelector';
 import ResultCard from './components/ResultCard';
 import HistorySection from './components/HistorySection';
 import TipsSection from './components/TipsSection';
 import ServiceManager from './components/ServiceManager';
+import ConfigSidebar from './components/ConfigSidebar';
+import ReportPanel from './components/ReportPanel';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 
 import { serviceDatabase as baseDatabase } from './services/serviceDatabase';
 
+interface CalculatorViewProps {
+  condition: VehicleCondition | null;
+  onConditionChange: (c: VehicleCondition) => void;
+}
+
 /**
- * The calculator view component that handles service selection and calculation.
- * Manages the main business logic of the application.
- *
- * @returns {React.ReactElement} Calculator view component
+ * The calculator view component with service selection & split-screen report.
+ * Vehicle condition & size now come from the Config Sidebar.
  */
-function CalculatorView(): React.ReactElement {
-  const { config, setConfig } = useContext(ConfigContext);
+function CalculatorView({
+  condition,
+  onConditionChange
+}: CalculatorViewProps): React.ReactElement {
+  const { config } = useContext(ConfigContext);
 
   /* UI state */
   const [activeCategory, setActiveCategory] = useState<ServiceCategory>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selected, setSelected] = useState<string[]>([]);
-  const [condition, setCondition] = useState<VehicleCondition | null>(null);
   const [toast, setToast] = useState<string>('');
 
-  /**
-   * Build a merged services map (built-in + any custom ones saved in localStorage).
-   */
+  /* Build merged services (built-in + custom) */
   const mergedServices: Record<string, ServiceItem> = useMemo(() => {
     const custom = getStorageItem<Partial<ServiceItem & { key: string }>[]>('customServices', []);
     const result: Record<string, ServiceItem> = { ...baseDatabase };
@@ -51,7 +54,7 @@ function CalculatorView(): React.ReactElement {
     return result;
   }, []);
 
-  /* helper: sort using the explicit `order` field (fallback: α-by-name) */
+  /* Sort helper */
   const sortKeys = (keys: string[]): string[] =>
     [...keys].sort((a, b) => {
       const oa = mergedServices[a]?.order ?? 9_999;
@@ -61,19 +64,19 @@ function CalculatorView(): React.ReactElement {
         : (mergedServices[a]?.name ?? '').localeCompare(mergedServices[b]?.name ?? '');
     });
 
-  /* toggle a service in/out of the selection */
+  /* Toggle selection */
   const toggleService = (key: string): void => {
     const name = mergedServices[key]?.name ?? key;
-    const isCurrentlySelected = selected.includes(key);
+    const isSelected = selected.includes(key);
     setSelected(prev =>
-      isCurrentlySelected
+      isSelected
         ? prev.filter(k => k !== key)
         : sortKeys([...prev, key])
     );
-    setToast(isCurrentlySelected ? `Odebráno: ${name}` : `Přidáno: ${name}`);
+    setToast(isSelected ? `Odebráno: ${name}` : `Přidáno: ${name}`);
   };
 
-  /* memoized list of services currently shown in the grid */
+  /* Filtered list */
   const filtered = useMemo(
     () =>
       Object.entries(mergedServices)
@@ -86,61 +89,52 @@ function CalculatorView(): React.ReactElement {
   );
 
   return (
-    <>
-      <SearchBar value={searchTerm} onChange={setSearchTerm} />
-      <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
+    <div className="flex flex-1 overflow-hidden">
+      {/* Left pane: filters + grid */}
+      <div className="flex-[3] flex flex-col overflow-y-auto">
+        <SearchBar value={searchTerm} onChange={setSearchTerm} />
+        <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
 
-      {/* responsive grid */}
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr gap-2 p-2">
-        {filtered.map(([key, svc]) => (
-          <ServiceCard
-            key={key}
-            serviceKey={key}
-            service={svc}
-            isSelected={selected.includes(key)}
-            toggle={toggleService}
-            currentCondition={condition}
-          />
-        ))}
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 p-2 auto-rows-fr">
+          {filtered.map(([key, svc]) => (
+            <ServiceCard
+              key={key}
+              serviceKey={key}
+              service={svc}
+              isSelected={selected.includes(key)}
+              toggle={toggleService}
+              currentCondition={condition}
+            />
+          ))}
+        </div>
+
+        <SelectionSummary selected={selected} onClear={() => setSelected([])} />
       </div>
 
-      <SelectionSummary selected={selected} onClear={() => setSelected([])} />
-      <ConditionSelector current={condition} onSelect={setCondition} />
-      <VehicleSizeSelector
-        current={config.vehicleSize}
-        onSelect={size => setConfig(c => ({ ...c, vehicleSize: size }))}
-      />
-      <ResultCard
-        selected={selected}
-        condition={condition}
-        onToast={setToast}
-      />
-
-      {toast && <Toast message={toast} onDismiss={() => setToast('')} />}
-    </>
+      {/* Right pane: report */}
+      <div className="flex-[1] border-l border-gray-200 dark:border-gray-700 p-4">
+        <ReportPanel selected={selected} condition={condition} />
+      </div>
+    </div>
   );
 }
 
 /**
- * Main application component that manages navigation between views.
- * Wraps the entire application in the ConfigProvider.
- *
- * @returns {React.ReactElement} Root application component
+ * Root app component: handles view navigation, condition state,
+ * and config sidebar.
  */
 function App(): React.ReactElement {
-  // Add 'services' to our view type
   type ViewType = 'calc' | 'history' | 'tips' | 'services';
 
-  /* remember last opened view between refreshes */
   const [view, setView] = useState<ViewType>('calc');
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [condition, setCondition] = useState<VehicleCondition | null>(null);
 
-  // Load saved view preference after initial render
   useEffect(() => {
-    const savedView = getStorageItem<ViewType>('detailingUiView', 'calc');
-    setView(savedView);
+    const saved = getStorageItem<ViewType>('detailingUiView', 'calc');
+    setView(saved);
   }, []);
 
-  // Save view preference when it changes
   useEffect(() => {
     setStorageItem('detailingUiView', view);
   }, [view]);
@@ -148,10 +142,22 @@ function App(): React.ReactElement {
   return (
     <ConfigProvider>
       <div className="h-screen flex flex-col">
-        <Header />
+        <Header onOpenConfigSidebar={() => setSidebarOpen(true)} />
+
+        <ConfigSidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          condition={condition}
+          onConditionChange={setCondition}
+        />
 
         <main className="flex-1 overflow-y-auto pt-14 pb-14">
-          {view === 'calc' && <CalculatorView />}
+          {view === 'calc' && (
+            <CalculatorView
+              condition={condition}
+              onConditionChange={setCondition}
+            />
+          )}
           {view === 'history' && <HistorySection />}
           {view === 'tips' && <TipsSection />}
           {view === 'services' && <ServiceManager />}
