@@ -16,7 +16,7 @@ import HistorySection from './components/HistorySection';
 import TipsSection from './components/TipsSection';
 import ServiceManager from './components/ServiceManager';
 import ConfigSidebar from './components/ConfigSidebar';
-import TemplateManager, { ServiceTemplate } from './components/TemplateManager';
+import TemplateManager from './components/TemplateManager';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 
@@ -25,17 +25,20 @@ import { serviceDatabase as baseDatabase } from './services/serviceDatabase';
 interface CalculatorViewProps {
   condition: VehicleCondition | null;
   onConditionChange: (c: VehicleCondition) => void;
+  selected: string[];
+  onSelectedChange: (services: string[]) => void;
 }
 
 function CalculatorView({
   condition,
-  onConditionChange
+  onConditionChange,
+  selected,
+  onSelectedChange
 }: CalculatorViewProps): React.ReactElement {
   const { config } = useContext(ConfigContext);
 
   const [activeCategory, setActiveCategory] = useState<ServiceCategory>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selected, setSelected] = useState<string[]>([]);
   const [toast, setToast] = useState<string>('');
   const [showTemplates, setShowTemplates] = useState<boolean>(false);
 
@@ -66,18 +69,18 @@ function CalculatorView({
     [...keys].sort((a, b) => {
       const oa = mergedServices[a]?.order ?? 9_999;
       const ob = mergedServices[b]?.order ?? 9_999;
-      return oa !== ob
-        ? oa - ob
-        : (mergedServices[a]?.name ?? '').localeCompare(mergedServices[b]?.name ?? '');
+      if (oa !== ob) return oa - ob;
+      return mergedServices[a].name.localeCompare(mergedServices[b].name);
     });
 
   // Toggle selection
   const toggleService = (key: string): void => {
     const name = mergedServices[key]?.name ?? key;
     const isSel = selected.includes(key);
-    setSelected(prev =>
-      isSel ? prev.filter(k => k !== key) : sortKeys([...prev, key])
-    );
+    const next = isSel
+      ? selected.filter(k => k !== key)
+      : sortKeys([...selected, key]);
+    onSelectedChange(next);
     setToast(isSel ? `Odebráno: ${name}` : `Přidáno: ${name}`);
   };
 
@@ -99,7 +102,7 @@ function CalculatorView({
       {showTemplates && (
         <TemplateManager
           onApply={services => {
-            setSelected(services);
+            onSelectedChange(services);
             setShowTemplates(false);
           }}
           onClose={() => setShowTemplates(false)}
@@ -143,7 +146,7 @@ function CalculatorView({
             ))}
           </div>
 
-          <SelectionSummary selected={selected} onClear={() => setSelected([])} />
+          <SelectionSummary selected={selected} onClear={() => onSelectedChange([])} />
         </div>
 
         {/* Right pane */}
@@ -166,6 +169,7 @@ function App(): React.ReactElement {
 
   const [view, setView] = useState<ViewType>('calc');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   // Persisted vehicle condition
   const [condition, setCondition] = useLocalStorageState<VehicleCondition | null>(
@@ -200,9 +204,18 @@ function App(): React.ReactElement {
             <CalculatorView
               condition={condition}
               onConditionChange={setCondition}
+              selected={selectedServices}
+              onSelectedChange={setSelectedServices}
             />
           )}
-          {view === 'history' && <HistorySection />}
+          {view === 'history' && (
+            <HistorySection
+              onCopyServices={services => {
+                setSelectedServices(services);
+                setView('calc');
+              }}
+            />
+          )}
           {view === 'tips' && <TipsSection />}
           {view === 'services' && <ServiceManager />}
         </main>
