@@ -2,7 +2,7 @@
 import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
 import { getStorageItem, setStorageItem } from './utils/storage';
-import type { ServiceCategory, VehicleCondition } from './types';
+import type { ServiceCategory, VehicleCondition, ServiceItem } from './types';
 
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
@@ -14,10 +14,11 @@ import VehicleSizeSelector from './components/VehicleSizeSelector';
 import ResultCard from './components/ResultCard';
 import HistorySection from './components/HistorySection';
 import TipsSection from './components/TipsSection';
+import ServiceManager from './components/ServiceManager';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 
-import { serviceDatabase } from './services/serviceDatabase';
+import { serviceDatabase as baseDatabase } from './services/serviceDatabase';
 
 /**
  * The calculator view component that handles service selection and calculation.
@@ -35,19 +36,34 @@ function CalculatorView(): React.ReactElement {
   const [condition, setCondition] = useState<VehicleCondition | null>(null);
   const [toast, setToast] = useState<string>('');
 
-  /* helper: sort using the explicit `order` field (fallback: α‑by‑name) */
+  /**
+   * Build a merged services map (built-in + any custom ones saved in localStorage).
+   */
+  const mergedServices: Record<string, ServiceItem> = useMemo(() => {
+    const custom = getStorageItem<Partial<ServiceItem & { key: string }>[]>('customServices', []);
+    const result: Record<string, ServiceItem> = { ...baseDatabase };
+    custom.forEach(svc => {
+      if (svc.key) {
+        const { key, ...rest } = svc as any;
+        result[key] = rest as ServiceItem;
+      }
+    });
+    return result;
+  }, []);
+
+  /* helper: sort using the explicit `order` field (fallback: α-by-name) */
   const sortKeys = (keys: string[]): string[] =>
     [...keys].sort((a, b) => {
-      const oa = serviceDatabase[a]?.order ?? 9_999;
-      const ob = serviceDatabase[b]?.order ?? 9_999;
+      const oa = mergedServices[a]?.order ?? 9_999;
+      const ob = mergedServices[b]?.order ?? 9_999;
       return oa !== ob
         ? oa - ob
-        : (serviceDatabase[a]?.name ?? '').localeCompare(serviceDatabase[b]?.name ?? '');
+        : (mergedServices[a]?.name ?? '').localeCompare(mergedServices[b]?.name ?? '');
     });
 
   /* toggle a service in/out of the selection */
   const toggleService = (key: string): void => {
-    const name = serviceDatabase[key]?.name ?? key;
+    const name = mergedServices[key]?.name ?? key;
     const isCurrentlySelected = selected.includes(key);
     setSelected(prev =>
       isCurrentlySelected
@@ -60,13 +76,13 @@ function CalculatorView(): React.ReactElement {
   /* memoized list of services currently shown in the grid */
   const filtered = useMemo(
     () =>
-      Object.entries(serviceDatabase)
+      Object.entries(mergedServices)
         .filter(([, svc]) =>
           (activeCategory === 'all' || svc.category === activeCategory) &&
           svc.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
         .sort(([, a], [, b]) => (a.order ?? 0) - (b.order ?? 0)),
-    [activeCategory, searchTerm]
+    [activeCategory, searchTerm, mergedServices]
   );
 
   return (
@@ -112,11 +128,12 @@ function CalculatorView(): React.ReactElement {
  * @returns {React.ReactElement} Root application component
  */
 function App(): React.ReactElement {
-  type ViewType = 'calc' | 'history' | 'tips';
-  
+  // Add 'services' to our view type
+  type ViewType = 'calc' | 'history' | 'tips' | 'services';
+
   /* remember last opened view between refreshes */
   const [view, setView] = useState<ViewType>('calc');
-  
+
   // Load saved view preference after initial render
   useEffect(() => {
     const savedView = getStorageItem<ViewType>('detailingUiView', 'calc');
@@ -137,6 +154,7 @@ function App(): React.ReactElement {
           {view === 'calc' && <CalculatorView />}
           {view === 'history' && <HistorySection />}
           {view === 'tips' && <TipsSection />}
+          {view === 'services' && <ServiceManager />}
         </main>
 
         <BottomNav active={view} onChange={setView} />

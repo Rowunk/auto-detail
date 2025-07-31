@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import type { BottomNavProps } from '../types/props';
 
-type TabKey = 'calc' | 'history' | 'tips';
+type TabKey = 'calc' | 'history' | 'tips' | 'services';
 
 type TabInfo = {
   key: TabKey;
@@ -12,9 +12,10 @@ type TabInfo = {
 };
 
 const tabs: TabInfo[] = [
-  { key: 'calc',    label: 'Kalkulačka', emoji: '🧮' },
-  { key: 'history', label: 'Historie',   emoji: '📊' },
-  { key: 'tips',    label: 'Tipy',       emoji: '💡' }
+  { key: 'calc', label: 'Kalkulačka', emoji: '🧮' },
+  { key: 'history', label: 'Historie', emoji: '📊' },
+  { key: 'tips', label: 'Tipy', emoji: '💡' },
+  { key: 'services', label: 'Služby', emoji: '🛠️' }
 ];
 
 /**
@@ -24,12 +25,6 @@ const tabs: TabInfo[] = [
  * @param {TabKey} props.active - Currently selected tab key
  * @param {Function} props.onChange - Callback when tab is changed
  * @returns {React.ReactElement} Bottom navigation component
- * 
- * @example
- * <BottomNav 
- *   active="calc" 
- *   onChange={(key) => setView(key)} 
- * />
  */
 export default function BottomNav({ active, onChange }: BottomNavProps): React.ReactElement {
   return (
@@ -52,6 +47,6 @@ export default function BottomNav({ active, onChange }: BottomNavProps): React.R
 }
 
 BottomNav.propTypes = {
-  active: PropTypes.oneOf(['calc', 'history', 'tips']).isRequired,
+  active: PropTypes.oneOf(['calc', 'history', 'tips', 'services']).isRequired,
   onChange: PropTypes.func.isRequired
 };
