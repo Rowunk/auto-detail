@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useState, useMemo, useEffect, useContext } from 'react';
 import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
-import { setStorageItem } from './utils/storage';
+import { setStorageItem, getStorageItem } from './utils/storage';
 import { useLocalStorageState } from './hooks/useLocalStorageState';
 import { isVehicleCondition, isServiceItemArray } from './utils/validators';
 import type { ServiceCategory, VehicleCondition, ServiceItem } from './types';
@@ -27,8 +27,7 @@ interface CalculatorViewProps {
 }
 
 /**
- * The calculator view component with service selection & split-screen report.
- * Vehicle condition & size now come from the Config Sidebar.
+ * Split-screen calculator: left = service grid, right = ever-present report.
  */
 function CalculatorView({
   condition,
@@ -36,20 +35,19 @@ function CalculatorView({
 }: CalculatorViewProps): React.ReactElement {
   const { config } = useContext(ConfigContext);
 
-  /* UI state */
   const [activeCategory, setActiveCategory] = useState<ServiceCategory>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selected, setSelected] = useState<string[]>([]);
   const [toast, setToast] = useState<string>('');
 
-  /* Persisted & validated custom services */
+  // Persisted & validated custom services
   const [customServices] = useLocalStorageState(
     'customServices',
     [] as (ServiceItem & { key: string })[],
     isServiceItemArray
   );
 
-  /* Build merged services (built-in + custom) */
+  // Merge built-in + custom
   const mergedServices: Record<string, ServiceItem> = useMemo(() => {
     const result: Record<string, ServiceItem> = { ...baseDatabase };
     customServices.forEach(svc => {
@@ -64,27 +62,27 @@ function CalculatorView({
     return result;
   }, [customServices]);
 
-  /* Sort helper */
+  // Sorting helper
   const sortKeys = (keys: string[]): string[] =>
     [...keys].sort((a, b) => {
-      const oa = mergedServices[a]?.order ?? 9_999;
-      const ob = mergedServices[b]?.order ?? 9_999;
+      const oa = mergedServices[a]?.order ?? 9999;
+      const ob = mergedServices[b]?.order ?? 9999;
       return oa !== ob
         ? oa - ob
         : (mergedServices[a]?.name ?? '').localeCompare(mergedServices[b]?.name ?? '');
     });
 
-  /* Toggle selection */
-  const toggleService = (key: string): void => {
+  // Toggle selection
+  const toggleService = (key: string) => {
     const name = mergedServices[key]?.name ?? key;
-    const isSelected = selected.includes(key);
+    const isSel = selected.includes(key);
     setSelected(prev =>
-      isSelected ? prev.filter(k => k !== key) : sortKeys([...prev, key])
+      isSel ? prev.filter(k => k !== key) : sortKeys([...prev, key])
     );
-    setToast(isSelected ? `Odebráno: ${name}` : `Přidáno: ${name}`);
+    setToast(isSel ? `Odebráno: ${name}` : `Přidáno: ${name}`);
   };
 
-  /* Filtered list */
+  // Filtered & sorted
   const filtered = useMemo(
     () =>
       Object.entries(mergedServices)
@@ -98,7 +96,7 @@ function CalculatorView({
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      {/* Left pane: filters + grid */}
+      {/* Left: filters + grid */}
       <div className="flex-[3] flex flex-col overflow-y-auto">
         <SearchBar value={searchTerm} onChange={setSearchTerm} />
         <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
@@ -119,7 +117,7 @@ function CalculatorView({
         <SelectionSummary selected={selected} onClear={() => setSelected([])} />
       </div>
 
-      {/* Right pane: report */}
+      {/* Right: report */}
       <div className="flex-[1] border-l border-gray-200 dark:border-gray-700 p-4">
         <ReportPanel selected={selected} condition={condition} />
       </div>
@@ -128,23 +126,22 @@ function CalculatorView({
 }
 
 /**
- * Root app component: handles view navigation, condition state,
- * and config sidebar.
+ * App root: view switching, config sidebar, and persistent condition.
  */
 function App(): React.ReactElement {
   type ViewType = 'calc' | 'history' | 'tips' | 'services';
 
   const [view, setView] = useState<ViewType>('calc');
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Persisted vehicle condition
+  // Persisted vehicle condition across reloads & tabs
   const [condition, setCondition] = useLocalStorageState<VehicleCondition | null>(
     'detailingCondition',
     null,
     x => x === null || isVehicleCondition(x)
   );
 
-  // Persist view tab
+  // Persist last‐view
   useEffect(() => {
     const saved = getStorageItem<ViewType>('detailingUiView', 'calc');
     setView(saved);
