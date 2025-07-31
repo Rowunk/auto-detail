@@ -7,15 +7,16 @@ import { isVehicleCondition, isServiceItemArray } from './utils/validators';
 import type { ServiceCategory, VehicleCondition, ServiceItem } from './types';
 
 import Header from './components/Header';
+import ConfigSidebar from './components/ConfigSidebar';
 import SearchBar from './components/SearchBar';
 import CategoryTabs from './components/CategoryTabs';
+import ConditionSelector from './components/ConditionSelector';
 import ServiceCard from './components/ServiceCard';
 import SelectionSummary from './components/SelectionSummary';
 import ReportPanel from './components/ReportPanel';
 import HistorySection from './components/HistorySection';
 import TipsSection from './components/TipsSection';
 import ServiceManager from './components/ServiceManager';
-import ConfigSidebar from './components/ConfigSidebar';
 import TemplateManager from './components/TemplateManager';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
@@ -121,7 +122,16 @@ function CalculatorView({
           role="region"
           aria-label="Service selection"
         >
-          <div className="p-2 flex justify-end">
+          {/* 1) Vehicle condition selector always visible */}
+          <div className="p-4 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+            <ConditionSelector
+              current={condition}
+              onSelect={onConditionChange}
+            />
+          </div>
+
+          {/* 2) Templates button */}
+          <div className="p-2 flex justify-end bg-white dark:bg-gray-800">
             <button
               onClick={() => setShowTemplates(true)}
               className="bg-indigo-600 text-white px-3 py-1 rounded"
@@ -130,9 +140,11 @@ function CalculatorView({
             </button>
           </div>
 
+          {/* 3) Search & category filters */}
           <SearchBar value={searchTerm} onChange={setSearchTerm} />
           <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
 
+          {/* 4) Services grid */}
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 p-2 auto-rows-fr">
             {filtered.map(([key, svc]) => (
               <ServiceCard
@@ -146,6 +158,7 @@ function CalculatorView({
             ))}
           </div>
 
+          {/* 5) Selection summary */}
           <SelectionSummary selected={selected} onClear={() => onSelectedChange([])} />
         </div>
 
@@ -159,6 +172,7 @@ function CalculatorView({
         </div>
       </div>
 
+      {/* Toast notifications */}
       {toast && <Toast message={toast} onDismiss={() => setToast('')} />}
     </>
   );
