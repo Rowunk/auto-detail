@@ -1,7 +1,9 @@
 // src/App.tsx
 import React, { useState, useMemo, useEffect, useContext } from 'react';
 import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
-import { getStorageItem, setStorageItem } from './utils/storage';
+import { setStorageItem } from './utils/storage';
+import { useLocalStorageState } from './hooks/useLocalStorageState';
+import { isVehicleCondition, isServiceItemArray } from './utils/validators';
 import type { ServiceCategory, VehicleCondition, ServiceItem } from './types';
 
 import Header from './components/Header';
@@ -9,12 +11,11 @@ import SearchBar from './components/SearchBar';
 import CategoryTabs from './components/CategoryTabs';
 import ServiceCard from './components/ServiceCard';
 import SelectionSummary from './components/SelectionSummary';
-import ResultCard from './components/ResultCard';
+import ReportPanel from './components/ReportPanel';
 import HistorySection from './components/HistorySection';
 import TipsSection from './components/TipsSection';
 import ServiceManager from './components/ServiceManager';
 import ConfigSidebar from './components/ConfigSidebar';
-import ReportPanel from './components/ReportPanel';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 
@@ -41,18 +42,27 @@ function CalculatorView({
   const [selected, setSelected] = useState<string[]>([]);
   const [toast, setToast] = useState<string>('');
 
+  /* Persisted & validated custom services */
+  const [customServices] = useLocalStorageState(
+    'customServices',
+    [] as (ServiceItem & { key: string })[],
+    isServiceItemArray
+  );
+
   /* Build merged services (built-in + custom) */
   const mergedServices: Record<string, ServiceItem> = useMemo(() => {
-    const custom = getStorageItem<Partial<ServiceItem & { key: string }>[]>('customServices', []);
     const result: Record<string, ServiceItem> = { ...baseDatabase };
-    custom.forEach(svc => {
-      if (svc.key) {
-        const { key, ...rest } = svc as any;
-        result[key] = rest as ServiceItem;
-      }
+    customServices.forEach(svc => {
+      result[svc.key] = {
+        name: svc.name,
+        category: svc.category,
+        order: svc.order,
+        times: svc.times,
+        basePrice: svc.basePrice
+      };
     });
     return result;
-  }, []);
+  }, [customServices]);
 
   /* Sort helper */
   const sortKeys = (keys: string[]): string[] =>
@@ -69,9 +79,7 @@ function CalculatorView({
     const name = mergedServices[key]?.name ?? key;
     const isSelected = selected.includes(key);
     setSelected(prev =>
-      isSelected
-        ? prev.filter(k => k !== key)
-        : sortKeys([...prev, key])
+      isSelected ? prev.filter(k => k !== key) : sortKeys([...prev, key])
     );
     setToast(isSelected ? `Odebráno: ${name}` : `Přidáno: ${name}`);
   };
@@ -128,8 +136,15 @@ function App(): React.ReactElement {
 
   const [view, setView] = useState<ViewType>('calc');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const [condition, setCondition] = useState<VehicleCondition | null>(null);
 
+  // Persisted vehicle condition
+  const [condition, setCondition] = useLocalStorageState<VehicleCondition | null>(
+    'detailingCondition',
+    null,
+    x => x === null || isVehicleCondition(x)
+  );
+
+  // Persist view tab
   useEffect(() => {
     const saved = getStorageItem<ViewType>('detailingUiView', 'calc');
     setView(saved);

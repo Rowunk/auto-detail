@@ -1,22 +1,67 @@
 // src/types/props.ts
 import type { ReactNode } from 'react';
-import type { 
-  VehicleCondition, 
-  VehicleSize, 
-  ServiceCategory, 
-  ServiceItem} from './index';
-import {
-  AppConfig
+import type {
+  VehicleCondition,
+  VehicleSize,
+  ServiceCategory,
+  ServiceItem
 } from './index';
+import type { AppConfig } from './index';
 
 /**
  * Props for the BottomNav component
  */
 export interface BottomNavProps {
   /** Currently active tab key */
-  active: 'calc' | 'history' | 'tips';
+  active: 'calc' | 'history' | 'tips' | 'services';
   /** Callback for tab change */
-  onChange: (key: 'calc' | 'history' | 'tips') => void;
+  onChange: (key: 'calc' | 'history' | 'tips' | 'services') => void;
+}
+
+/**
+ * Props for the Header component
+ */
+export interface HeaderProps {
+  /** Called when user clicks the gear icon to open the Config Sidebar */
+  onOpenConfigSidebar: () => void;
+}
+
+/**
+ * Props for the CalculatorView component
+ */
+export interface CalculatorViewProps {
+  /**
+   * Current vehicle condition (could be null → default)
+   */
+  condition: VehicleCondition | null;
+  /**
+   * Callback to update the selected vehicle condition
+   */
+  onConditionChange: (condition: VehicleCondition) => void;
+}
+
+/**
+ * Props for the ConfigSidebar component
+ */
+export interface ConfigSidebarProps {
+  /** Whether the sidebar is open */
+  open: boolean;
+  /** Callback to close the sidebar */
+  onClose: () => void;
+  /** Current vehicle condition */
+  condition: VehicleCondition | null;
+  /** Callback to update condition */
+  onConditionChange: (condition: VehicleCondition) => void;
+}
+
+/**
+ * Props for the ReportPanel component
+ */
+export interface ReportPanelProps {
+  /** Array of selected service keys */
+  selected: string[];
+  /** Current vehicle condition */
+  condition: VehicleCondition | null;
 }
 
 /**
@@ -30,46 +75,6 @@ export interface CategoryTabsProps {
 }
 
 /**
- * Props for the ConditionSelector component
- */
-export interface ConditionSelectorProps {
-  /** Currently selected vehicle condition */
-  current: VehicleCondition | null;
-  /** Callback for condition selection */
-  onSelect: (condition: VehicleCondition) => void;
-}
-
-/**
- * Props for the ConfigProvider component
- */
-export interface ConfigProviderProps {
-  /** Child components */
-  children: ReactNode;
-}
-
-/**
- * Props for the Header component (no props required)
- */
-export interface HeaderProps {}
-
-/**
- * Props for the HistorySection component (no props required)
- */
-export interface HistorySectionProps {}
-
-/**
- * Props for the ResultCard component
- */
-export interface ResultCardProps {
-  /** Array of selected service keys */
-  selected: string[];
-  /** Current vehicle condition */
-  condition: VehicleCondition | null;
-  /** Callback for toast notifications */
-  onToast?: (message: string) => void;
-}
-
-/**
  * Props for the SearchBar component
  */
 export interface SearchBarProps {
@@ -77,16 +82,6 @@ export interface SearchBarProps {
   value: string;
   /** Callback for search term change */
   onChange: (value: string) => void;
-}
-
-/**
- * Props for the SelectionSummary component
- */
-export interface SelectionSummaryProps {
-  /** Array of selected service keys */
-  selected: string[];
-  /** Callback to clear all selections */
-  onClear: () => void;
 }
 
 /**
@@ -106,19 +101,48 @@ export interface ServiceCardProps {
 }
 
 /**
- * Props for the SettingsModal component
+ * Props for the SelectionSummary component
  */
-export interface SettingsModalProps {
-  /** Whether the modal is currently visible */
-  open: boolean;
-  /** Callback to close the modal */
-  onClose: () => void;
+export interface SelectionSummaryProps {
+  /** Array of selected service keys */
+  selected: string[];
+  /** Callback to clear all selections */
+  onClear: () => void;
 }
 
 /**
- * Props for the TipsSection component (no props required)
+ * Props for the ResultCard component
  */
-export interface TipsSectionProps {}
+export interface ResultCardProps {
+  /** Array of selected service keys */
+  selected: string[];
+  /** Current vehicle condition */
+  condition: VehicleCondition | null;
+  /** Callback for toast notifications */
+  onToast?: (message: string) => void;
+}
+
+/**
+ * Props for the HistorySection component
+ */
+export interface HistorySectionProps { }
+
+/**
+ * Props for the TipsSection component
+ */
+export interface TipsSectionProps { }
+
+/**
+ * Props for the ServiceManager component
+ */
+export interface ServiceManagerProps { }
+
+/**
+ * Props for the ConfigProvider component
+ */
+export interface ConfigProviderProps {
+  children: ReactNode;
+}
 
 /**
  * Props for the Toast component
@@ -129,18 +153,3 @@ export interface ToastProps {
   /** Callback when toast is dismissed */
   onDismiss: () => void;
 }
-
-/**
- * Props for the VehicleSizeSelector component
- */
-export interface VehicleSizeSelectorProps {
-  /** Currently selected vehicle size */
-  current: VehicleSize;
-  /** Callback for size selection */
-  onSelect: (size: VehicleSize) => void;
-}
-
-/**
- * Props for the CalculatorView component (no props required)
- */
-export interface CalculatorViewProps {}
