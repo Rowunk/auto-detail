@@ -8,24 +8,7 @@ import type { VehicleCondition } from '../types';
 
 /**
  * Card component for an individual detailing service.
- * Shows service name, adjusted time and price, and allows toggling selection.
- *
- * @param {ServiceCardProps} props - Component props
- * @param {string} props.serviceKey - Unique identifier for the service
- * @param {ServiceItem} props.service - Service data object
- * @param {boolean} props.isSelected - Whether the service is currently selected
- * @param {Function} props.toggle - Callback to toggle selection state
- * @param {VehicleCondition|null} props.currentCondition - Currently selected vehicle condition
- * @returns {React.ReactElement} Service card component
- * 
- * @example
- * <ServiceCard
- *   serviceKey="snow-foam"
- *   service={serviceDatabase['snow-foam']}
- *   isSelected={selected.includes('snow-foam')}
- *   toggle={toggleService}
- *   currentCondition="dirty"
- * />
+ * Enlarged tap-target for mobile thumb navigation.
  */
 export default function ServiceCard({
   serviceKey,
@@ -38,7 +21,6 @@ export default function ServiceCard({
   const { vehicleSize, workers } = config;
 
   const condKey: VehicleCondition = currentCondition ?? 'excellent';
-  
   const baseTime = service.times[condKey];
   const basePrice = service.basePrice[condKey];
 
@@ -49,25 +31,26 @@ export default function ServiceCard({
     basePrice * sizeMultipliers[vehicleSize]
   );
 
-  const handleClick = (): void => {
-    toggle(serviceKey);
-  };
-
   return (
-    <div
-      onClick={handleClick}
-      className={`flex items-center justify-between gap-2 p-2 border rounded shadow-sm transition transform hover:scale-95 cursor-pointer ${
-        isSelected ? 'bg-green-100 border-green-500' : 'bg-white border-gray-300'
-      }`}
+    <button
+      onClick={() => toggle(serviceKey)}
+      className={`
+        relative flex flex-col justify-between p-4 min-h-[6rem] border rounded-lg shadow-sm transition 
+        hover:scale-105 focus:outline-none
+        ${isSelected ? 'bg-green-100 border-green-500' : 'bg-white border-gray-300'}
+      `}
+      aria-pressed={isSelected}
     >
-      <div>
-        <div className="font-semibold text-sm">{service.name}</div>
-        <div className="text-xs text-gray-600">
-          ⏱️ {adjustedTime} min&nbsp;&nbsp;💰 {adjustedPrice} Kč
-        </div>
+      <div className="font-semibold text-base mb-2 text-left">
+        {service.name}
       </div>
-      <div className="text-lg">{isSelected ? '✅' : '➕'}</div>
-    </div>
+      <div className="text-sm text-gray-700 text-left">
+        ⏱️ {adjustedTime} min | 💰 {adjustedPrice} Kč
+      </div>
+      <div className="absolute top-3 right-3 text-xl">
+        {isSelected ? '✅' : '➕'}
+      </div>
+    </button>
   );
 }
 

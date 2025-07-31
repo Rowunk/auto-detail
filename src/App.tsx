@@ -68,8 +68,8 @@ function CalculatorView({
   // Sort helper
   const sortKeys = (keys: string[]): string[] =>
     [...keys].sort((a, b) => {
-      const oa = mergedServices[a]?.order ?? 9_999;
-      const ob = mergedServices[b]?.order ?? 9_999;
+      const oa = mergedServices[a]?.order ?? 9999;
+      const ob = mergedServices[b]?.order ?? 9999;
       if (oa !== ob) return oa - ob;
       return mergedServices[a].name.localeCompare(mergedServices[b].name);
     });
@@ -99,7 +99,6 @@ function CalculatorView({
 
   return (
     <>
-      {/* Templates modal */}
       {showTemplates && (
         <TemplateManager
           onApply={services => {
@@ -110,7 +109,6 @@ function CalculatorView({
         />
       )}
 
-      {/* Split screen */}
       <div
         className="flex flex-col lg:flex-row flex-1 overflow-hidden"
         role="region"
@@ -122,7 +120,7 @@ function CalculatorView({
           role="region"
           aria-label="Service selection"
         >
-          {/* 1) Vehicle condition selector always visible */}
+          {/* 1) Condition selector always visible */}
           <div className="p-4 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
             <ConditionSelector
               current={condition}
@@ -140,12 +138,12 @@ function CalculatorView({
             </button>
           </div>
 
-          {/* 3) Search & category filters */}
+          {/* 3) Filters */}
           <SearchBar value={searchTerm} onChange={setSearchTerm} />
           <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
 
-          {/* 4) Services grid */}
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 p-2 auto-rows-fr">
+          {/* 4) Grid */}
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-2 auto-rows-fr">
             {filtered.map(([key, svc]) => (
               <ServiceCard
                 key={key}
@@ -158,13 +156,16 @@ function CalculatorView({
             ))}
           </div>
 
-          {/* 5) Selection summary */}
-          <SelectionSummary selected={selected} onClear={() => onSelectedChange([])} />
+          {/* 5) Summary */}
+          <SelectionSummary
+            selected={selected}
+            onClear={() => onSelectedChange([])}
+          />
         </div>
 
         {/* Right pane */}
         <div
-          className="w-full lg:flex-[1] border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700 p-4"
+          className="w-full lg:flex-[1] border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700 p-4 overflow-y-auto"
           role="complementary"
           aria-label="Summary report"
         >
@@ -172,7 +173,6 @@ function CalculatorView({
         </div>
       </div>
 
-      {/* Toast notifications */}
       {toast && <Toast message={toast} onDismiss={() => setToast('')} />}
     </>
   );
@@ -224,8 +224,8 @@ function App(): React.ReactElement {
           )}
           {view === 'history' && (
             <HistorySection
-              onCopyServices={services => {
-                setSelectedServices(services);
+              onCopyServices={svc => {
+                setSelectedServices(svc);
                 setView('calc');
               }}
             />
