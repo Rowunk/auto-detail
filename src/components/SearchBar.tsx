@@ -1,46 +1,40 @@
 // src/components/SearchBar.tsx
 import type { ChangeEvent } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
-import debounce from 'lodash.debounce';
+import lodashDebounce from 'lodash.debounce';
 import type { SearchBarProps } from '../types/props';
 
-/**
- * Debounced text search bar for filtering services.
- * Uses a stable debounced callback via useRef.
- */
+// support both CJS and ESM default-export shapes
+const debounce: typeof lodashDebounce =
+  typeof lodashDebounce === 'function'
+    ? lodashDebounce
+    : // @ts-ignore
+      lodashDebounce.default;
+
 export default function SearchBar({ value, onChange }: SearchBarProps): React.ReactElement {
   const [local, setLocal] = useState<string>(value);
 
-  // Create a ref containing the debounced onChange handler
   const debounced = useRef(
     debounce((term: string) => {
       onChange(term);
     }, 250)
   );
 
-  // Re-create debounced function if onChange changes
   useEffect(() => {
     debounced.current = debounce((term: string) => {
       onChange(term);
     }, 250);
   }, [onChange]);
 
-  // Invoke debounced callback on local value change
   useEffect(() => {
     debounced.current(local);
   }, [local]);
 
-  // Sync local state when external `value` changes
   useEffect(() => {
     setLocal(value);
   }, [value]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      debounced.current.cancel();
-    };
-  }, []);
+  useEffect(() => () => debounced.current.cancel(), []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setLocal(e.target.value);
