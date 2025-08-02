@@ -1,45 +1,46 @@
 // src/components/SearchBar.tsx
 import type { ChangeEvent } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useRef, useState } from 'react';
 import debounce from 'lodash.debounce';
 import type { SearchBarProps } from '../types/props';
 
 /**
  * Debounced text search bar for filtering services.
- *
- * @param {SearchBarProps} props - Component props
- * @param {string} props.value - Current search term
- * @param {Function} props.onChange - Callback when search term changes (debounced)
- * @returns {React.ReactElement} Search bar component
- * 
- * @example
- * <SearchBar
- *   value={searchTerm}
- *   onChange={setSearchTerm}
- * />
+ * Uses a stable debounced callback via useRef.
  */
 export default function SearchBar({ value, onChange }: SearchBarProps): React.ReactElement {
   const [local, setLocal] = useState<string>(value);
 
-  /** Debounce parent setter by 250 ms */
-  const debounced = useMemo(
-    () => debounce((term: string) => onChange(term), 250),
-    [onChange]
+  // Create a ref containing the debounced onChange handler
+  const debounced = useRef(
+    debounce((term: string) => {
+      onChange(term);
+    }, 250)
   );
 
-  /** Send updates as user types */
+  // Re-create debounced function if onChange changes
   useEffect(() => {
-    debounced(local);
-  }, [local, debounced]);
+    debounced.current = debounce((term: string) => {
+      onChange(term);
+    }, 250);
+  }, [onChange]);
 
-  /** Keep local value in sync with external changes */
+  // Invoke debounced callback on local value change
+  useEffect(() => {
+    debounced.current(local);
+  }, [local]);
+
+  // Sync local state when external `value` changes
   useEffect(() => {
     setLocal(value);
   }, [value]);
 
-  /* Cleanup on unmount */
-  useEffect(() => () => debounced.cancel(), [debounced]);
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      debounced.current.cancel();
+    };
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setLocal(e.target.value);
@@ -52,14 +53,10 @@ export default function SearchBar({ value, onChange }: SearchBarProps): React.Re
         onChange={handleChange}
         type="text"
         placeholder="🔍 Hledat služby..."
-        className="w-full px-2 py-1 border-2 border-gray-300 rounded-full text-sm
-                   focus:outline-none focus:border-blue-500 transition"
+        className="w-full px-2 py-1 border-2 border-gray-300 dark:border-gray-600 rounded-full
+                   bg-white dark:bg-card text-current placeholder-gray-500 dark:placeholder-gray-400
+                   text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition"
       />
     </div>
   );
 }
-
-SearchBar.propTypes = {
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired
-};
