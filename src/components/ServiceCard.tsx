@@ -67,12 +67,14 @@ export default function ServiceCard({
       {/* Favorite toggle */}
       <button
         onClick={handleFavoriteToggle}
-        className={`absolute top-3 left-3 text-lg transition-colors hover:scale-110
-          ${isFavorited ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-400'}`}
+        className={`absolute bottom-2 right-2 text-lg transition-all hover:scale-110 p-1.5 rounded-full font-bold
+          ${isFavorited 
+            ? 'text-white bg-gradient-to-r from-yellow-400 to-orange-500 shadow-lg' 
+            : 'text-gray-400 dark:text-gray-500 bg-transparent border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-yellow-400 hover:text-yellow-500'}`}
         title={isFavorited ? 'Odebrat z oblíbených' : 'Přidat do oblíbených'}
         aria-label={isFavorited ? 'Odebrat z oblíbených' : 'Přidat do oblíbených'}
       >
-        {isFavorited ? '⭐' : '☆'}
+        ♥
       </button>
     </button>
   );
