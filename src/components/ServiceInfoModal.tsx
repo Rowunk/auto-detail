@@ -138,6 +138,7 @@ const ServiceInfoModal: React.FC<ServiceInfoModalProps> = ({
         className="fixed inset-0 bg-black/50 z-40"
         onClick={onClose}
         aria-hidden="true"
+        data-testid="modal-backdrop"
       />
 
       {/* Modal */}
@@ -284,6 +285,7 @@ const ServiceInfoModal: React.FC<ServiceInfoModalProps> = ({
             <button
               onClick={onClose}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              data-testid="modal-close-footer-button"
             >
               Zavřít
             </button>

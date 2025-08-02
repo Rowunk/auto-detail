@@ -1,4 +1,4 @@
-// ===== src/__test__/App.test.tsx (FIXED) =====
+// ===== src/__test__/App.test.tsx (UPDATED for Knowledge Base) =====
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -33,6 +33,27 @@ jest.mock('../utils/favorites', () => ({
   incrementUsage: jest.fn(() => true),
 }));
 
+// ✅ NEW: Mock knowledge base for the new Tips section
+jest.mock('../data/knowledgeBase', () => ({
+  knowledgeBase: [
+    {
+      id: 'test-kb-article',
+      title: 'Test Knowledge Article',
+      category: 'basics',
+      tags: ['test'],
+      difficulty: 'beginner',
+      readTime: 5,
+      lastUpdated: '2024-08-02',
+      content: { summary: 'Test summary', sections: [] }
+    }
+  ],
+  knowledgeCategories: [
+    { id: 'basics', name: '🎯 Základy', icon: '🎯' }
+  ],
+  searchArticles: jest.fn(() => []),
+  getArticlesByCategory: jest.fn(() => [])
+}));
+
 describe('App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -64,13 +85,16 @@ describe('App', () => {
     expect(screen.getByText(/Historie zakázek/i)).toBeInTheDocument();
   });
 
-  it('switches to tips view', () => {
+  // ✅ UPDATED: Test now expects Knowledge Base content instead of old tips
+  it('switches to tips view (now Knowledge Base)', () => {
     render(<App />);
     
     const tipsTab = screen.getByRole('tab', { name: /tipy/i });
     fireEvent.click(tipsTab);
     
-    expect(screen.getByText(/Profesionální tipy/i)).toBeInTheDocument();
+    // Should show the Knowledge Base interface
+    expect(screen.getByText(/Detailing Wiki & Know-How/i)).toBeInTheDocument();
+    expect(screen.getByText(/Kompletní znalostní báze/i)).toBeInTheDocument();
   });
 
   it('switches to services view', () => {
@@ -334,5 +358,30 @@ describe('App', () => {
     
     // Should save view state
     expect(setStorageItem).toHaveBeenCalledWith('detailingUiView', 'tips');
+  });
+
+  // ✅ NEW: Test Knowledge Base search functionality
+  it('can search in knowledge base', async () => {
+    render(<App />);
+    
+    // Switch to tips (knowledge base) view
+    const tipsTab = screen.getByRole('tab', { name: /tipy/i });
+    fireEvent.click(tipsTab);
+    
+    // Should show knowledge base search
+    const searchInput = screen.getByPlaceholderText(/hledat články/i);
+    expect(searchInput).toBeInTheDocument();
+  });
+
+  // ✅ NEW: Test Knowledge Base categories
+  it('shows knowledge base categories', () => {
+    render(<App />);
+    
+    // Switch to tips (knowledge base) view
+    const tipsTab = screen.getByRole('tab', { name: /tipy/i });
+    fireEvent.click(tipsTab);
+    
+    // Should show category buttons
+    expect(screen.getByText(/🎯 Základy/)).toBeInTheDocument();
   });
 });

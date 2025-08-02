@@ -1,4 +1,4 @@
-// src/components/__test__/ServiceInfoModal.test.tsx
+// src/components/__test__/ServiceInfoModal.test.tsx - Final fixed version
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ServiceInfoModal from '../ServiceInfoModal';
@@ -157,7 +157,8 @@ describe('ServiceInfoModal', () => {
       />
     );
 
-    const closeButton = screen.getByRole('button', { name: /zavřít/i });
+    // Use data-testid to target the footer close button specifically
+    const closeButton = screen.getByTestId('modal-close-footer-button');
     fireEvent.click(closeButton);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -189,8 +190,9 @@ describe('ServiceInfoModal', () => {
       />
     );
 
-    const backdrop = screen.getByRole('dialog').previousSibling;
-    fireEvent.click(backdrop as Element);
+    // Use the data-testid for reliable backdrop selection
+    const backdrop = screen.getByTestId('modal-backdrop');
+    fireEvent.click(backdrop);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });

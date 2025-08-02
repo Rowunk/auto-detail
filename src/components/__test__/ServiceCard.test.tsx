@@ -1,6 +1,6 @@
-// src/components/__test__/ServiceCard.test.tsx - Updated with info button tests
+// src/components/__test__/ServiceCard.test.tsx - Fixed version
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import ServiceCard from '../ServiceCard';
 import { ConfigContext } from '../../contexts/ConfigContext';
 import { serviceDatabase, sizeMultipliers } from '../../services/serviceDatabase';
@@ -88,8 +88,11 @@ describe('ServiceCard', () => {
     fireEvent.click(infoButton);
 
     // Check that modal is now open
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText(service.name)).toBeInTheDocument(); // Service name in modal
+    const modal = screen.getByRole('dialog');
+    expect(modal).toBeInTheDocument();
+    
+    // FIXED: Use within() to check for service name specifically in the modal
+    expect(within(modal).getByText(service.name)).toBeInTheDocument();
   });
 
   it('closes info modal when close button is clicked', () => {
@@ -108,8 +111,8 @@ describe('ServiceCard', () => {
     const infoButton = screen.getByLabelText('Zobrazit informace o službě');
     fireEvent.click(infoButton);
 
-    // Close modal
-    const closeButton = screen.getByRole('button', { name: /zavřít/i });
+    // FIXED: Target the specific close button using aria-label
+    const closeButton = screen.getByLabelText('Zavřít');
     fireEvent.click(closeButton);
 
     // Modal should be closed

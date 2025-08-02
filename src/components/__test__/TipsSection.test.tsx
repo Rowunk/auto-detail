@@ -1,41 +1,39 @@
-// src/components/__test__/TipsSection.test.tsx
+// src/components/__test__/TipsSection.test.tsx - Updated for KnowledgeBase
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import TipsSection from '../TipsSection';
 
+// Mock the KnowledgeBase component
+jest.mock('../KnowledgeBase', () => {
+  return function MockKnowledgeBase() {
+    return (
+      <div data-testid="knowledge-base">
+        <h1>📚 Detailing Wiki & Know-How</h1>
+        <p>Kompletní znalostní báze pro profesionální auto detailing</p>
+      </div>
+    );
+  };
+});
+
 describe('TipsSection', () => {
-  it('renders all professional tips', () => {
+  it('renders the knowledge base component', () => {
     render(<TipsSection />);
     
-    expect(screen.getByText(/Profesionální tipy pro granulární služby/i)).toBeInTheDocument();
-    expect(screen.getByText(/⭐ Oblíbené služby/)).toBeInTheDocument();
-    expect(screen.getByText(/🎯 Granulární přístup/)).toBeInTheDocument();
-    expect(screen.getByText(/⏱️ Časová optimalizace/)).toBeInTheDocument();
-    expect(screen.getByText(/💰 Cenová strategie/)).toBeInTheDocument();
+    expect(screen.getByTestId('knowledge-base')).toBeInTheDocument();
+    expect(screen.getByText('📚 Detailing Wiki & Know-How')).toBeInTheDocument();
+    expect(screen.getByText(/kompletní znalostní báze/i)).toBeInTheDocument();
   });
 
-  it('displays tip content correctly', () => {
-    render(<TipsSection />);
-    
-    expect(screen.getByText(/Označte nejčastěji používané služby hvězdičkou/)).toBeInTheDocument();
-    expect(screen.getByText(/Kombinujte služby pro optimální výsledek/)).toBeInTheDocument();
-    expect(screen.getByText(/Některé služby lze kombinovat/)).toBeInTheDocument();
-    expect(screen.getByText(/Balíčkové ceny jsou často výhodnější/)).toBeInTheDocument();
-  });
-
-  it('has proper structure and styling', () => {
+  it('matches the interface of the old TipsSection', () => {
+    // The component should render without any props
     const { container } = render(<TipsSection />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('serves as a wrapper for KnowledgeBase', () => {
+    render(<TipsSection />);
     
-    // Check for main section
-    expect(container.querySelector('section')).toBeInTheDocument();
-    
-    // Check for grid layout
-    expect(container.querySelector('.grid')).toBeInTheDocument();
-    
-    // Check for colored border accents
-    expect(container.querySelector('.border-yellow-500')).toBeInTheDocument();
-    expect(container.querySelector('.border-green-500')).toBeInTheDocument();
-    expect(container.querySelector('.border-blue-500')).toBeInTheDocument();
-    expect(container.querySelector('.border-purple-500')).toBeInTheDocument();
+    // Should contain the knowledge base content
+    expect(screen.getByTestId('knowledge-base')).toBeInTheDocument();
   });
 });
