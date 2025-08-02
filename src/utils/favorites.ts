@@ -1,11 +1,13 @@
 // src/utils/favorites.ts
+
 import { getStorageItem, setStorageItem } from './storage';
 import type { FavoritesData, ServiceUsageStats } from '../types';
 
 const FAVORITES_STORAGE_KEY = 'detailingFavorites';
 
 /**
- * Default favorites data structure
+ * Default favorites data structure.
+ * Note: we keep this immutable—every load returns a fresh copy.
  */
 const defaultFavoritesData: FavoritesData = {
   favorites: [],
@@ -27,11 +29,20 @@ function isFavoritesData(x: any): x is FavoritesData {
 }
 
 /**
- * Load favorites data from localStorage with validation
+ * Load favorites data from localStorage with validation.
+ * If missing or invalid, returns a fresh copy of defaultFavoritesData.
  */
 export function loadFavoritesData(): FavoritesData {
-  const data = getStorageItem<FavoritesData>(FAVORITES_STORAGE_KEY, defaultFavoritesData);
-  return isFavoritesData(data) ? data : defaultFavoritesData;
+  const raw = getStorageItem<FavoritesData | null>(FAVORITES_STORAGE_KEY, null);
+  if (raw && isFavoritesData(raw)) {
+    // return a shallow clone so mutations don't affect stored object
+    return {
+      favorites: [...raw.favorites],
+      usageStats: { ...raw.usageStats }
+    };
+  }
+  // fresh default
+  return { favorites: [], usageStats: {} };
 }
 
 /**
@@ -60,14 +71,12 @@ export function getUsageStats(): ServiceUsageStats {
  */
 export function toggleFavorite(serviceKey: string): boolean {
   const data = loadFavoritesData();
-  const isFavorited = data.favorites.includes(serviceKey);
-  
-  if (isFavorited) {
-    data.favorites = data.favorites.filter(key => key !== serviceKey);
+  const idx = data.favorites.indexOf(serviceKey);
+  if (idx >= 0) {
+    data.favorites.splice(idx, 1);
   } else {
     data.favorites.push(serviceKey);
   }
-  
   return saveFavoritesData(data);
 }
 
@@ -83,45 +92,37 @@ export function isFavorite(serviceKey: string): boolean {
  */
 export function incrementUsage(serviceKeys: string[]): boolean {
   const data = loadFavoritesData();
-  
   serviceKeys.forEach(key => {
     data.usageStats[key] = (data.usageStats[key] || 0) + 1;
   });
-  
   return saveFavoritesData(data);
 }
 
 /**
- * Get most used services sorted by usage count
+ * Get most used services sorted by usage count (desc).
+ * Optional limit to top N.
  */
 export function getMostUsedServices(limit?: number): string[] {
   const stats = getUsageStats();
   const sorted = Object.entries(stats)
     .sort(([, a], [, b]) => b - a)
     .map(([key]) => key);
-  
-  return limit ? sorted.slice(0, limit) : sorted;
+  return limit != null ? sorted.slice(0, limit) : sorted;
 }
 
 /**
- * Get services that are either favorited OR heavily used
- * This provides a smart "quick-pick" list combining explicit favorites
- * with frequently used services
+ * Get services that are either favorited OR heavily used.
+ * Favorites first, then most-used that aren't already favorited.
  */
 export function getQuickPickServices(): string[] {
   const favorites = getFavorites();
-  const mostUsed = getMostUsedServices(10); // Top 10 most used
-  
-  // Combine favorites with most used, removing duplicates
-  // Favorites appear first, then most used that aren't already favorited
+  const mostUsed = getMostUsedServices(10);
   const quickPick = [...favorites];
-  
   mostUsed.forEach(key => {
     if (!quickPick.includes(key)) {
       quickPick.push(key);
     }
   });
-  
   return quickPick;
 }
 
@@ -129,5 +130,5 @@ export function getQuickPickServices(): string[] {
  * Clear all favorites and usage data
  */
 export function clearFavoritesData(): boolean {
-  return saveFavoritesData(defaultFavoritesData);
+  return saveFavoritesData({ favorites: [], usageStats: {} });
 }
