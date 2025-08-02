@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CategoryTabs matches snapshot (visual regression) 1`] = `
+<div>
+  <div
+    class="flex space-x-2 overflow-x-auto px-2 py-1"
+  >
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-white text-gray-700 border border-gray-300 dark:bg-primary dark:text-gray-200 dark:border-gray-600"
+    >
+      ⭐ Oblíbené
+    </button>
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-blue-500 text-white shadow"
+    >
+      📋 Vše
+    </button>
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-white text-gray-700 border border-gray-300 dark:bg-primary dark:text-gray-200 dark:border-gray-600"
+    >
+      🚿 Mytí
+    </button>
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-white text-gray-700 border border-gray-300 dark:bg-primary dark:text-gray-200 dark:border-gray-600"
+    >
+      🚗 Exteriér
+    </button>
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-white text-gray-700 border border-gray-300 dark:bg-primary dark:text-gray-200 dark:border-gray-600"
+    >
+      ⚙️ Kola
+    </button>
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-white text-gray-700 border border-gray-300 dark:bg-primary dark:text-gray-200 dark:border-gray-600"
+    >
+      🪑 Interiér
+    </button>
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-white text-gray-700 border border-gray-300 dark:bg-primary dark:text-gray-200 dark:border-gray-600"
+    >
+      🛡️ Ochrana
+    </button>
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-white text-gray-700 border border-gray-300 dark:bg-primary dark:text-gray-200 dark:border-gray-600"
+    >
+      🔧 Opravy
+    </button>
+    <button
+      class="whitespace-nowrap px-3 py-1 rounded-full text-sm font-semibold transition
+            bg-white text-gray-700 border border-gray-300 dark:bg-primary dark:text-gray-200 dark:border-gray-600"
+    >
+      ⭐ Speciální
+    </button>
+  </div>
+</div>
+`;
