@@ -1,25 +1,30 @@
 // src/components/ConfigSidebar.tsx
 import React, { useState, useEffect, useContext } from 'react';
-import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
 import VehicleSizeSelector from './VehicleSizeSelector';
+import ConditionSelector from './ConditionSelector';
 import type { ConfigSidebarProps } from '../types/props';
 
+/**
+ * Sidebar panel for adjusting vehicle & application settings.
+ */
 export default function ConfigSidebar({
     open,
-    onClose
+    onClose,
+    condition,
+    onConditionChange
 }: ConfigSidebarProps): React.ReactElement | null {
     const { config, setConfig } = useContext(ConfigContext);
     const [localConfig, setLocalConfig] = useState(config);
 
-    // Sync local state when sidebar opens
+    // Sync local config when sidebar opens
     useEffect(() => {
         if (open) {
             setLocalConfig(config);
         }
     }, [open, config]);
 
-    // Close on Escape
+    // Close sidebar on Escape key
     useEffect(() => {
         if (!open) return;
         const handleKey = (e: KeyboardEvent) => {
@@ -49,20 +54,20 @@ export default function ConfigSidebar({
                 aria-hidden="true"
             />
 
-            {/* Sidebar */}
+            {/* Sidebar container */}
             <aside
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="config-sidebar-title"
                 className="fixed top-0 right-0 bottom-0 w-full sm:w-80 bg-white dark:bg-gray-800 shadow-lg z-50 flex flex-col"
             >
+                {/* Header */}
                 <header className="flex items-center justify-between p-4 border-b dark:border-gray-700">
                     <h2 id="config-sidebar-title" className="text-lg font-semibold">
                         ⚙️ Nastavení
                     </h2>
                     <button
                         onClick={cancel}
-                        autoFocus
                         className="text-gray-600 hover:text-gray-900"
                         aria-label="Zavřít nastavení"
                     >
@@ -70,8 +75,18 @@ export default function ConfigSidebar({
                     </button>
                 </header>
 
+                {/* Body */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                    {/* Vehicle Size */}
+                    {/* Vehicle Condition Selector */}
+                    <section>
+                        <h3 className="font-semibold mb-2">🚘 Stav vozidla</h3>
+                        <ConditionSelector
+                            current={condition}
+                            onSelect={onConditionChange}
+                        />
+                    </section>
+
+                    {/* Vehicle Size Selector */}
                     <section>
                         <h3 className="font-semibold mb-2">🚚 Velikost vozidla</h3>
                         <VehicleSizeSelector
@@ -82,16 +97,21 @@ export default function ConfigSidebar({
                         />
                     </section>
 
-                    {/* App Settings */}
+                    {/* Application Settings */}
                     <section>
                         <h3 className="font-semibold mb-2">🛠️ Aplikace</h3>
 
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Pracovníků</label>
+                            <label className="block text-sm font-medium mb-1">
+                                Pracovníků
+                            </label>
                             <select
                                 value={localConfig.workers}
                                 onChange={e =>
-                                    setLocalConfig(cfg => ({ ...cfg, workers: Number(e.target.value) }))
+                                    setLocalConfig(cfg => ({
+                                        ...cfg,
+                                        workers: Number(e.target.value)
+                                    }))
                                 }
                                 className="w-full border rounded px-2 py-1"
                             >
@@ -143,7 +163,7 @@ export default function ConfigSidebar({
                     </section>
                 </div>
 
-                {/* Actions */}
+                {/* Footer */}
                 <footer className="flex justify-end gap-2 p-4 border-t dark:border-gray-700">
                     <button
                         onClick={cancel}
@@ -162,8 +182,3 @@ export default function ConfigSidebar({
         </>
     );
 }
-
-ConfigSidebar.propTypes = {
-    open: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired
-};
