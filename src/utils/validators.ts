@@ -11,14 +11,16 @@ export function isServiceItemArray(x: any): x is (ServiceItem & { key: string })
         typeof item.name === 'string' &&
         typeof item.category === 'string' &&
         typeof item.order === 'number' &&
+        // Ensure times is a non-null object before checking its properties
+        item.times !== null &&
         typeof item.times === 'object' &&
-        ['excellent', 'dirty', 'neglected', 'extreme'].every(cond =>
-            typeof (item.times as any)[cond] === 'number'
-        ) &&
+        (['excellent', 'dirty', 'neglected', 'extreme'] as VehicleCondition[])
+            .every(cond => typeof (item.times as any)[cond] === 'number') &&
+        // Ensure basePrice is a non-null object before checking its properties
+        item.basePrice !== null &&
         typeof item.basePrice === 'object' &&
-        ['excellent', 'dirty', 'neglected', 'extreme'].every(cond =>
-            typeof (item.basePrice as any)[cond] === 'number'
-        )
+        (['excellent', 'dirty', 'neglected', 'extreme'] as VehicleCondition[])
+            .every(cond => typeof (item.basePrice as any)[cond] === 'number')
     );
 }
 
