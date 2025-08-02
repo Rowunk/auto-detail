@@ -21,6 +21,7 @@ const CONDITIONS: ConditionInfo[] = [
 /**
  * Component for selecting the vehicle condition, which affects service times and prices.
  * Displays a grid of condition options with visual indicators.
+ * Now shows warning when no condition is selected.
  *
  * @param {ConditionSelectorProps} props - Component props
  * @param {VehicleCondition|null} props.current - Currently selected condition
@@ -36,7 +37,9 @@ const CONDITIONS: ConditionInfo[] = [
 export default function ConditionSelector({ current, onSelect }: ConditionSelectorProps): React.ReactElement {
   return (
     <div className="p-4">
-      <h3 className="text-center font-semibold mb-2">Stav vozidla</h3>
+      <h3 className={`text-center font-semibold mb-2 ${current === null ? 'text-red-600' : ''}`}>
+        {current === null ? '⚠️ NEJPRVE VYBERTE STAV VOZIDLA' : 'Stav vozidla'}
+      </h3>
       <div className="grid grid-cols-4 gap-3">
         {CONDITIONS.map(c => (
           <button
@@ -45,8 +48,10 @@ export default function ConditionSelector({ current, onSelect }: ConditionSelect
             className={
               `flex flex-col items-center p-3 rounded-lg shadow-sm transition transform hover:scale-95
                ${current === c.key
-                 ? `bg-gradient-to-br ${c.bg} text-white`
-                 : 'bg-white border border-gray-300 text-gray-700'}`
+                 ? `bg-gradient-to-br ${c.bg} text-white ring-2 ring-blue-500 ring-offset-2`
+                 : current === null 
+                   ? 'bg-white border-2 border-red-300 text-gray-700 animate-pulse'
+                   : 'bg-white border border-gray-300 text-gray-700'}`
             }
           >
             <span className="text-2xl mb-1">{c.emoji}</span>

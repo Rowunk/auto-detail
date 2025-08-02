@@ -13,7 +13,7 @@ import Toast from './Toast';
  * Summary panel for current selection.
  * Shows totals, allows toggling details, overrides prices,
  * applying discounts/markups, adding notes, and confirming (saving) the job.
- * Now tracks service usage for favorites system.
+ * Now tracks service usage for favorites system and shows prompt when no condition selected.
  */
 export default function ReportPanel({
     selected,
@@ -22,11 +22,7 @@ export default function ReportPanel({
     const { config, storageAvailable } = useContext(ConfigContext);
     const [showDetails, setShowDetails] = useState(false);
     const [toast, setToast] = useState('');
-
-    // Base P&L from utils
-    const { breakdown, totalTime, totalPrice, cost, profit, marginPct } =
-        calculateJob(selected, condition, config);
-
+    
     // Overrides keyed by service name
     const [overrides, setOverrides] = useState<Record<string, number>>({});
     // Discount (%) and flat adjustment (Kč)
@@ -34,6 +30,23 @@ export default function ReportPanel({
     const [flatAdj, setFlatAdj] = useState<number>(0);
     // Notes for adjustment
     const [notes, setNotes] = useState<string>('');
+
+    // Base P&L from utils - handle null condition case
+    const calculationResult = useMemo(() => {
+        if (condition === null) {
+            return {
+                breakdown: [],
+                totalTime: 0,
+                totalPrice: 0,
+                cost: 0,
+                profit: 0,
+                marginPct: 0
+            };
+        }
+        return calculateJob(selected, condition, config);
+    }, [selected, condition, config]);
+
+    const { breakdown, totalTime, totalPrice, cost, profit, marginPct } = calculationResult;
 
     // Adjusted per‐service prices
     const adjustedBreakdown = useMemo(
@@ -59,6 +72,21 @@ export default function ReportPanel({
     );
     // Grand total with flat adjustment
     const grandTotal = afterDiscount + flatAdj;
+
+    // Show prompt when no condition selected - AFTER all hooks
+    if (condition === null) {
+        return (
+            <div className="text-center p-8">
+                <div className="text-6xl mb-4">⚠️</div>
+                <h3 className="text-lg font-semibold text-red-600 mb-2">
+                    Vyberte stav vozidla
+                </h3>
+                <p className="text-sm text-gray-600">
+                    Pro zobrazení přesné kalkulace musíte nejprve vybrat stav vozidla v horní části.
+                </p>
+            </div>
+        );
+    }
 
     const handleConfirm = (): void => {
         if (!storageAvailable) {

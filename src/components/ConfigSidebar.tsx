@@ -2,17 +2,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ConfigContext } from '../contexts/ConfigContext';
 import VehicleSizeSelector from './VehicleSizeSelector';
-import ConditionSelector from './ConditionSelector';
 import type { ConfigSidebarProps } from '../types/props';
 
 /**
  * Sidebar panel for adjusting vehicle & application settings.
+ * Vehicle condition is now handled only in the main calculator view.
  */
 export default function ConfigSidebar({
     open,
-    onClose,
-    condition,
-    onConditionChange
+    onClose
 }: ConfigSidebarProps): React.ReactElement | null {
     const { config, setConfig } = useContext(ConfigContext);
     const [localConfig, setLocalConfig] = useState(config);
@@ -77,15 +75,6 @@ export default function ConfigSidebar({
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                    {/* Vehicle Condition Selector */}
-                    <section>
-                        <h3 className="font-semibold mb-2">🚘 Stav vozidla</h3>
-                        <ConditionSelector
-                            current={condition}
-                            onSelect={onConditionChange}
-                        />
-                    </section>
-
                     {/* Vehicle Size Selector */}
                     <section>
                         <h3 className="font-semibold mb-2">🚚 Velikost vozidla</h3>

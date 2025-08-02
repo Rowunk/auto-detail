@@ -37,10 +37,6 @@ export interface ConfigSidebarProps {
   open: boolean;
   /** Callback to close the sidebar */
   onClose: () => void;
-  /** Currently selected vehicle condition */
-  condition: VehicleCondition | null;
-  /** Handler invoked when the user selects a new condition */
-  onConditionChange: (condition: VehicleCondition) => void;
 }
 
 /**

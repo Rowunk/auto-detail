@@ -153,6 +153,17 @@ function CalculatorView({
               current={condition}
               onSelect={onConditionChange}
             />
+            {condition === null && (
+              <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center gap-2 text-yellow-800">
+                  <span className="text-lg">⚠️</span>
+                  <span className="font-semibold">Vyberte stav vozidla</span>
+                </div>
+                <p className="text-sm text-yellow-700 mt-1">
+                  Služby jsou zakázané dokud nevyberete stav vozidla pro správnou kalkulaci cen.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 2) Templates button */}
@@ -256,8 +267,6 @@ function App(): React.ReactElement {
         <ConfigSidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
-          condition={condition}
-          onConditionChange={setCondition}
         />
 
         <main className="flex-1 overflow-y-auto pt-14 pb-14">
