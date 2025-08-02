@@ -1,40 +1,48 @@
 // src/components/SearchBar.tsx
 import type { ChangeEvent } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
-import lodashDebounce from 'lodash.debounce';
+// Robust CJS/ESM interop for lodash.debounce
+import * as _debounce from 'lodash.debounce';
 import type { SearchBarProps } from '../types/props';
 
-// support both CJS and ESM default-export shapes
-const debounce: typeof lodashDebounce =
-  typeof lodashDebounce === 'function'
-    ? lodashDebounce
-    : // @ts-ignore
-      lodashDebounce.default;
+const debounce: typeof import('lodash.debounce') =
+  // Use .default if present (ESM), else use the module itself (CJS)
+  // @ts-ignore
+  (_debounce.default ? _debounce.default : _debounce);
 
 export default function SearchBar({ value, onChange }: SearchBarProps): React.ReactElement {
   const [local, setLocal] = useState<string>(value);
 
+  // Create a ref containing the debounced onChange handler
   const debounced = useRef(
     debounce((term: string) => {
       onChange(term);
     }, 250)
   );
 
+  // Re-create debounced function if onChange changes
   useEffect(() => {
     debounced.current = debounce((term: string) => {
       onChange(term);
     }, 250);
   }, [onChange]);
 
+  // Invoke debounced callback on local value change
   useEffect(() => {
     debounced.current(local);
   }, [local]);
 
+  // Sync local state when external `value` changes
   useEffect(() => {
     setLocal(value);
   }, [value]);
 
-  useEffect(() => () => debounced.current.cancel(), []);
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      debounced.current.cancel();
+    };
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setLocal(e.target.value);
