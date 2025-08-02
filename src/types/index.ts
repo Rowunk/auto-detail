@@ -1,5 +1,3 @@
-// src/types/index.ts
-
 /**
  * Vehicle condition states that affect service times and prices
  */
@@ -8,7 +6,7 @@ export type VehicleCondition = 'excellent' | 'dirty' | 'neglected' | 'extreme';
 /**
  * Vehicle size categories that affect pricing via multipliers
  */
-export type VehicleSize = 'small' | 'sedan' | 'combi' | 'suv' | 'van' | 'truck';
+export type VehicleSize = 'small' | 'midsize' | 'sedan' | 'combi' | 'suv' | 'van' | 'truck';
 
 /**
  * Service categories for organizing services in the UI

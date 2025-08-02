@@ -485,6 +485,7 @@ export const serviceDatabase: ServiceDatabase = {
  */
 export const sizeMultipliers: Record<VehicleSize, number> = {
   small: 0.7,
+  midsize: 1.0,    // ← Added for test/app compatibility (fixes NaN)
   sedan: 0.8,
   combi: 0.9,
   suv:   1.0,

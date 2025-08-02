@@ -1,4 +1,3 @@
-// src/components/ServiceCard.tsx
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
@@ -61,6 +60,7 @@ export default function ServiceCard({
     >
       {/* Main service button - covers entire card */}
       <button
+        data-testid="service-main-btn"   // <--- Added for testing
         onClick={handleServiceToggle}
         disabled={isDisabled}
         className={`
