@@ -1,4 +1,3 @@
-// src/components/HistorySection.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { getStorageItem, setStorageItem, removeStorageItem } from '../utils/storage';
@@ -27,10 +26,11 @@ export default function HistorySection({
     }
   }, [storageAvailable]);
 
+  const normalizedHistory = Array.isArray(history) ? history : [];
   const deleteItem = (idx: number) => {
     if (!window.confirm('Smazat tuto zakázku?')) return;
     if (!storageAvailable) return setToast('Lokální úložiště nedostupné');
-    const h = [...history];
+    const h = [...normalizedHistory];
     h.splice(idx, 1);
     setStorageItem('detailingHistoryGranular', h);
     setHistory(h);
@@ -51,8 +51,8 @@ export default function HistorySection({
     setToast('Služby zkopírovány do kalkulačky');
   };
 
-  const totalJobs = history.length;
-  const totalRevenue = history.reduce((sum, e) => sum + (e.price || 0), 0);
+  const totalJobs = normalizedHistory.length;
+  const totalRevenue = normalizedHistory.reduce((sum, e) => sum + (e.price || 0), 0);
 
   return (
     <section className="p-4">
@@ -74,13 +74,13 @@ export default function HistorySection({
         </button>
       </div>
 
-      {history.length === 0 ? (
+      {normalizedHistory.length === 0 ? (
         <div className="text-center text-gray-400 py-8">
           <span className="text-5xl opacity-30 block">📊</span>
           <p>Žádné zakázky</p>
         </div>
       ) : (
-        history.map((e, i) => (
+        normalizedHistory.map((e, i) => (
           <div
             key={i}
             className="flex justify-between items-center border-b py-2"
