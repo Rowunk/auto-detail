@@ -194,7 +194,12 @@ function App(): React.ReactElement {
 
   useEffect(() => {
     const saved = getStorageItem<ViewType>('detailingUiView', 'calc');
-    setView(saved);
+    // Ensure only valid views are used
+    if (['calc', 'history', 'tips', 'services'].includes(saved)) {
+      setView(saved);
+    } else {
+      setView('calc');
+    }
   }, []);
 
   useEffect(() => {
