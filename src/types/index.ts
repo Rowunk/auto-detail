@@ -13,8 +13,9 @@ export type VehicleSize = 'small' | 'sedan' | 'combi' | 'suv' | 'van' | 'truck';
 /**
  * Service categories for organizing services in the UI
  * 'all' is a special category used for filtering to show all services
+ * 'favorites' shows user's favorited services for quick access
  */
-export type ServiceCategory = 'wash' | 'exterior' | 'wheels' | 'interior' | 'protection' | 'restoration' | 'specialty' | 'all';
+export type ServiceCategory = 'wash' | 'exterior' | 'wheels' | 'interior' | 'protection' | 'restoration' | 'specialty' | 'all' | 'favorites';
 
 /**
  * Structure of a single service item in the database
@@ -23,7 +24,7 @@ export interface ServiceItem {
   /** Display name of the service */
   name: string;
   /** Category the service belongs to */
-  category: Exclude<ServiceCategory, 'all'>;
+  category: Exclude<ServiceCategory, 'all' | 'favorites'>;
   /** Suggested position in professional detailing workflow (lower = earlier) */
   order: number;
   /** Labor minutes required for each condition */
@@ -79,4 +80,22 @@ export interface HistoryEntry {
   time: string;
   /** Formatted date string */
   date: string;
+}
+
+/**
+ * Service usage statistics for tracking most-used services
+ */
+export interface ServiceUsageStats {
+  /** Service key -> usage count mapping */
+  [serviceKey: string]: number;
+}
+
+/**
+ * Favorites management data structure
+ */
+export interface FavoritesData {
+  /** Array of favorited service keys */
+  favorites: string[];
+  /** Usage statistics for tracking most-used services */
+  usageStats: ServiceUsageStats;
 }

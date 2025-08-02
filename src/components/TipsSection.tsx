@@ -10,6 +10,11 @@ type Tip = {
 
 const tips: Tip[] = [
   {
+    title: '⭐ Oblíbené služby',
+    text: 'Označte nejčastěji používané služby hvězdičkou pro rychlý přístup. Aplikace také automaticky sleduje nejpoužívanější služby.',
+    accent: 'border-yellow-500',
+  },
+  {
     title: '🎯 Granulární přístup',
     text: 'Kombinujte služby pro optimální výsledek. Každá služba má specifické požadavky a pořadí.',
     accent: 'border-green-500',
@@ -28,7 +33,7 @@ const tips: Tip[] = [
 
 /**
  * Displays professional tips for detailing services.
- * Contains static information about best practices.
+ * Contains static information about best practices and new features.
  *
  * @returns {React.ReactElement} Tips section component
  * 

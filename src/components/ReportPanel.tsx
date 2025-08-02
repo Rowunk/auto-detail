@@ -1,6 +1,7 @@
 // src/components/ReportPanel.tsx
 import React, { useState, useContext, useMemo } from 'react';
 import { getStorageItem, setStorageItem } from '../utils/storage';
+import { incrementUsage } from '../utils/favorites';
 import { ConfigContext } from '../contexts/ConfigContext';
 import { calculateJob } from '../utils/jobCalculator';
 import { formatMinutes } from '../utils/format';
@@ -12,6 +13,7 @@ import Toast from './Toast';
  * Summary panel for current selection.
  * Shows totals, allows toggling details, overrides prices,
  * applying discounts/markups, adding notes, and confirming (saving) the job.
+ * Now tracks service usage for favorites system.
  */
 export default function ReportPanel({
     selected,
@@ -63,6 +65,8 @@ export default function ReportPanel({
             setToast('Lokální úložiště není dostupné');
             return;
         }
+
+        // Save to history
         const history = getStorageItem<HistoryEntry[]>(
             'detailingHistoryGranular',
             []
@@ -76,7 +80,15 @@ export default function ReportPanel({
             date: new Date().toLocaleDateString('cs-CZ')
         };
         setStorageItem('detailingHistoryGranular', [...history, newEntry]);
-        setToast('Zakázka uložena ✅');
+
+        // Track usage for favorites system
+        const usageTracked = incrementUsage(selected);
+        
+        if (usageTracked) {
+            setToast('Zakázka uložena ✅ (statistiky aktualizovány)');
+        } else {
+            setToast('Zakázka uložena ✅');
+        }
     };
 
     return (

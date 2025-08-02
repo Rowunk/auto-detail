@@ -10,18 +10,20 @@ type CategoryInfo = {
 };
 
 const categories: CategoryInfo[] = [
-  { key: 'all',      label: '📋 Vše'        },
-  { key: 'wash',     label: '🚿 Mytí'       },
-  { key: 'exterior', label: '🚗 Exteriér'   },
-  { key: 'wheels',   label: '⚙️ Kola'       },
-  { key: 'interior', label: '🪑 Interiér'   },
-  { key: 'protection', label: '🛡️ Ochrana' },
-  { key: 'restoration', label: '🔧 Opravy'  },
-  { key: 'specialty',  label: '⭐ Speciální'}
+  { key: 'favorites', label: '⭐ Oblíbené'    },
+  { key: 'all',       label: '📋 Vše'        },
+  { key: 'wash',      label: '🚿 Mytí'       },
+  { key: 'exterior',  label: '🚗 Exteriér'   },
+  { key: 'wheels',    label: '⚙️ Kola'       },
+  { key: 'interior',  label: '🪑 Interiér'   },
+  { key: 'protection', label: '🛡️ Ochrana'  },
+  { key: 'restoration', label: '🔧 Opravy'   },
+  { key: 'specialty',  label: '⭐ Speciální' }
 ];
 
 /**
  * Horizontal scrollable tabs for filtering services by category.
+ * Now includes a favorites tab for quick access to user's preferred services.
  *
  * @param {CategoryTabsProps} props - Component props
  * @param {ServiceCategory} props.active - Currently selected category
@@ -30,7 +32,7 @@ const categories: CategoryInfo[] = [
  * 
  * @example
  * <CategoryTabs 
- *   active="wash" 
+ *   active="favorites" 
  *   onChange={(category) => setActiveCategory(category)} 
  * />
  */
@@ -55,7 +57,7 @@ export default function CategoryTabs({ active, onChange }: CategoryTabsProps): R
 
 CategoryTabs.propTypes = {
   active: PropTypes.oneOf([
-    'all', 'wash', 'exterior', 'wheels', 'interior', 
+    'all', 'favorites', 'wash', 'exterior', 'wheels', 'interior', 
     'protection', 'restoration', 'specialty'
   ]).isRequired,
   onChange: PropTypes.func.isRequired

@@ -4,6 +4,7 @@ import { ConfigProvider, ConfigContext } from './contexts/ConfigContext';
 import { getStorageItem, setStorageItem } from './utils/storage';
 import { useLocalStorageState } from './hooks/useLocalStorageState';
 import { isVehicleCondition, isServiceItemArray } from './utils/validators';
+import { getQuickPickServices } from './utils/favorites';
 import type { ServiceCategory, VehicleCondition, ServiceItem } from './types';
 
 import Header from './components/Header';
@@ -38,7 +39,7 @@ function CalculatorView({
 }: CalculatorViewProps): React.ReactElement {
   const { config } = useContext(ConfigContext);
 
-  const [activeCategory, setActiveCategory] = useState<ServiceCategory>('all');
+  const [activeCategory, setActiveCategory] = useState<ServiceCategory>('favorites'); // Start with favorites
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [toast, setToast] = useState<string>('');
   const [showTemplates, setShowTemplates] = useState<boolean>(false);
@@ -65,6 +66,9 @@ function CalculatorView({
     return result;
   }, [customServices]);
 
+  // Get quick pick services (favorites + most used)
+  const quickPickServices = useMemo(() => getQuickPickServices(), [activeCategory]);
+
   // Sort helper
   const sortKeys = (keys: string[]): string[] =>
     [...keys].sort((a, b) => {
@@ -86,16 +90,39 @@ function CalculatorView({
   };
 
   // Filter + sort
-  const filtered = useMemo(
-    () =>
-      Object.entries(mergedServices)
-        .filter(([, svc]) =>
-          (activeCategory === 'all' || svc.category === activeCategory) &&
-          svc.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .sort(([, a], [, b]) => (a.order ?? 0) - (b.order ?? 0)),
-    [activeCategory, searchTerm, mergedServices]
-  );
+  const filtered = useMemo(() => {
+    let serviceEntries = Object.entries(mergedServices);
+
+    // Filter by category
+    if (activeCategory === 'favorites') {
+      // Show only services that are in quick pick list
+      serviceEntries = serviceEntries.filter(([key]) => 
+        quickPickServices.includes(key)
+      );
+    } else if (activeCategory !== 'all') {
+      serviceEntries = serviceEntries.filter(([, svc]) => 
+        svc.category === activeCategory
+      );
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      serviceEntries = serviceEntries.filter(([, svc]) =>
+        svc.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Sort by order for non-favorites, or by quick pick order for favorites
+    if (activeCategory === 'favorites') {
+      return serviceEntries.sort(([keyA], [keyB]) => {
+        const indexA = quickPickServices.indexOf(keyA);
+        const indexB = quickPickServices.indexOf(keyB);
+        return indexA - indexB;
+      });
+    } else {
+      return serviceEntries.sort(([, a], [, b]) => (a.order ?? 0) - (b.order ?? 0));
+    }
+  }, [activeCategory, searchTerm, mergedServices, quickPickServices]);
 
   return (
     <>
@@ -144,16 +171,31 @@ function CalculatorView({
 
           {/* 4) Grid */}
           <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-2 auto-rows-fr">
-            {filtered.map(([key, svc]) => (
-              <ServiceCard
-                key={key}
-                serviceKey={key}
-                service={svc}
-                isSelected={selected.includes(key)}
-                toggle={toggleService}
-                currentCondition={condition}
-              />
-            ))}
+            {filtered.length === 0 && activeCategory === 'favorites' ? (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                <span className="text-4xl block mb-2">⭐</span>
+                <p>Žádné oblíbené služby</p>
+                <p className="text-sm mt-1">
+                  Označte služby hvězdičkou pro rychlý přístup
+                </p>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                <span className="text-4xl block mb-2">🔍</span>
+                <p>Žádné služby nenalezeny</p>
+              </div>
+            ) : (
+              filtered.map(([key, svc]) => (
+                <ServiceCard
+                  key={key}
+                  serviceKey={key}
+                  service={svc}
+                  isSelected={selected.includes(key)}
+                  toggle={toggleService}
+                  currentCondition={condition}
+                />
+              ))
+            )}
           </div>
 
           {/* 5) Summary */}

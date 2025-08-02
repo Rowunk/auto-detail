@@ -1,14 +1,16 @@
 // src/components/ServiceCard.tsx
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ConfigContext } from '../contexts/ConfigContext';
 import { sizeMultipliers } from '../services/serviceDatabase';
+import { toggleFavorite, isFavorite } from '../utils/favorites';
 import type { ServiceCardProps } from '../types/props';
 import type { VehicleCondition } from '../types';
 
 /**
  * Card component for an individual detailing service.
  * Enlarged tap-target for mobile thumb navigation.
+ * Now includes favorite toggle functionality.
  */
 export default function ServiceCard({
   serviceKey,
@@ -19,6 +21,7 @@ export default function ServiceCard({
 }: ServiceCardProps): React.ReactElement {
   const { config } = useContext(ConfigContext);
   const { vehicleSize, workers } = config;
+  const [isFavorited, setIsFavorited] = useState<boolean>(() => isFavorite(serviceKey));
 
   const condKey: VehicleCondition = currentCondition ?? 'excellent';
   const baseTime = service.times[condKey];
@@ -30,6 +33,14 @@ export default function ServiceCard({
   const adjustedPrice = Math.round(
     basePrice * sizeMultipliers[vehicleSize]
   );
+
+  const handleFavoriteToggle = (e: React.MouseEvent): void => {
+    e.stopPropagation(); // Prevent service selection when toggling favorite
+    const success = toggleFavorite(serviceKey);
+    if (success) {
+      setIsFavorited(!isFavorited);
+    }
+  };
 
   return (
     <button
@@ -45,11 +56,24 @@ export default function ServiceCard({
         {service.name}
       </div>
       <div className="text-sm text-gray-700 text-left">
-        ⏱️ {adjustedTime} min | 💰 {adjustedPrice} Kč
+        ⏱️ {adjustedTime} min | 💰 {adjustedPrice} Kč
       </div>
+      
+      {/* Selection indicator */}
       <div className="absolute top-3 right-3 text-xl">
         {isSelected ? '✅' : '➕'}
       </div>
+      
+      {/* Favorite toggle */}
+      <button
+        onClick={handleFavoriteToggle}
+        className={`absolute top-3 left-3 text-lg transition-colors hover:scale-110
+          ${isFavorited ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-400'}`}
+        title={isFavorited ? 'Odebrat z oblíbených' : 'Přidat do oblíbených'}
+        aria-label={isFavorited ? 'Odebrat z oblíbených' : 'Přidat do oblíbených'}
+      >
+        {isFavorited ? '⭐' : '☆'}
+      </button>
     </button>
   );
 }
