@@ -1,3 +1,4 @@
+// src/components/__test__/ServiceCard.test.tsx - Updated with info button tests
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ServiceCard from '../ServiceCard';
@@ -53,6 +54,87 @@ describe('ServiceCard', () => {
     expect(screen.getByText(/300 Kč/)).toBeInTheDocument();
   });
 
+  it('renders info button with correct accessibility', () => {
+    render(
+      <ServiceCard
+        serviceKey={serviceKey}
+        service={service}
+        isSelected={false}
+        toggle={jest.fn()}
+        currentCondition="excellent"
+      />,
+      { wrapper: providerWrapper() }
+    );
+
+    const infoButton = screen.getByLabelText('Zobrazit informace o službě');
+    expect(infoButton).toBeInTheDocument();
+    expect(infoButton).toHaveAttribute('title', 'Informace o službě');
+    expect(infoButton).toHaveTextContent('i');
+  });
+
+  it('opens info modal when info button is clicked', () => {
+    render(
+      <ServiceCard
+        serviceKey={serviceKey}
+        service={service}
+        isSelected={false}
+        toggle={jest.fn()}
+        currentCondition="excellent"
+      />,
+      { wrapper: providerWrapper() }
+    );
+
+    const infoButton = screen.getByLabelText('Zobrazit informace o službě');
+    fireEvent.click(infoButton);
+
+    // Check that modal is now open
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText(service.name)).toBeInTheDocument(); // Service name in modal
+  });
+
+  it('closes info modal when close button is clicked', () => {
+    render(
+      <ServiceCard
+        serviceKey={serviceKey}
+        service={service}
+        isSelected={false}
+        toggle={jest.fn()}
+        currentCondition="excellent"
+      />,
+      { wrapper: providerWrapper() }
+    );
+
+    // Open modal
+    const infoButton = screen.getByLabelText('Zobrazit informace o službě');
+    fireEvent.click(infoButton);
+
+    // Close modal
+    const closeButton = screen.getByRole('button', { name: /zavřít/i });
+    fireEvent.click(closeButton);
+
+    // Modal should be closed
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('does not trigger service toggle when info button is clicked', () => {
+    const toggleMock = jest.fn();
+    render(
+      <ServiceCard
+        serviceKey={serviceKey}
+        service={service}
+        isSelected={false}
+        toggle={toggleMock}
+        currentCondition="excellent"
+      />,
+      { wrapper: providerWrapper() }
+    );
+
+    const infoButton = screen.getByLabelText('Zobrazit informace o službě');
+    fireEvent.click(infoButton);
+
+    expect(toggleMock).not.toHaveBeenCalled();
+  });
+
   it('renders correct values for different vehicle size and workers', () => {
     render(
       <ServiceCard
@@ -101,8 +183,8 @@ describe('ServiceCard', () => {
       />,
       { wrapper: providerWrapper() }
     );
-    // The main card button is always the first button (has absolute inset-0)
-    const [mainBtn] = screen.getAllByRole('button');
+    // The main card button is the one with data-testid
+    const mainBtn = screen.getByTestId('service-main-btn');
     fireEvent.click(mainBtn);
     expect(toggleMock).toHaveBeenCalledWith(serviceKey);
   });
@@ -120,10 +202,65 @@ describe('ServiceCard', () => {
       />,
       { wrapper: providerWrapper() }
     );
-    const favBtn = screen.getAllByRole('button')[1]; // second button is favorite
+    const favBtn = screen.getByLabelText('Přidat do oblíbených');
     expect(favBtn).toHaveAttribute('aria-label', 'Přidat do oblíbených');
     fireEvent.click(favBtn);
     // Label should now toggle (Odebrat z oblíbených)
     expect(favBtn).toHaveAttribute('aria-label', 'Odebrat z oblíbených');
+  });
+
+  it('positions info button in top-left corner', () => {
+    render(
+      <ServiceCard
+        serviceKey={serviceKey}
+        service={service}
+        isSelected={false}
+        toggle={jest.fn()}
+        currentCondition="excellent"
+      />,
+      { wrapper: providerWrapper() }
+    );
+
+    const infoButton = screen.getByLabelText('Zobrazit informace o službě');
+    expect(infoButton).toHaveClass('top-2', 'left-2');
+  });
+
+  it('adjusts service name padding to accommodate info button', () => {
+    render(
+      <ServiceCard
+        serviceKey={serviceKey}
+        service={service}
+        isSelected={false}
+        toggle={jest.fn()}
+        currentCondition="excellent"
+      />,
+      { wrapper: providerWrapper() }
+    );
+
+    const serviceName = screen.getByText(service.name);
+    expect(serviceName).toHaveClass('pl-8'); // Left padding to avoid overlap with info button
+  });
+
+  it('shows info modal with service details', () => {
+    render(
+      <ServiceCard
+        serviceKey={serviceKey}
+        service={service}
+        isSelected={false}
+        toggle={jest.fn()}
+        currentCondition="excellent"
+      />,
+      { wrapper: providerWrapper() }
+    );
+
+    // Open modal
+    const infoButton = screen.getByLabelText('Zobrazit informace o službě');
+    fireEvent.click(infoButton);
+
+    // Check modal content
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('📝 Popis služby')).toBeInTheDocument();
+    expect(screen.getByText('💰 Čas a cena podle stavu vozidla')).toBeInTheDocument();
+    expect(screen.getByText('💡 Profesionální tipy')).toBeInTheDocument();
   });
 });
