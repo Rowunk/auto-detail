@@ -29,13 +29,15 @@ interface CalculatorViewProps {
   onConditionChange: (c: VehicleCondition) => void;
   selected: string[];
   onSelectedChange: (services: string[]) => void;
+  onJobConfirmed: () => void;
 }
 
 function CalculatorView({
   condition,
   onConditionChange,
   selected,
-  onSelectedChange
+  onSelectedChange,
+  onJobConfirmed
 }: CalculatorViewProps): React.ReactElement {
   const { config } = useContext(ConfigContext);
 
@@ -222,7 +224,11 @@ function CalculatorView({
           role="complementary"
           aria-label="Summary report"
         >
-          <ReportPanel selected={selected} condition={condition} />
+          <ReportPanel 
+            selected={selected} 
+            condition={condition}
+            onJobConfirmed={onJobConfirmed}
+          />
         </div>
       </div>
 
@@ -276,6 +282,11 @@ function App(): React.ReactElement {
               onConditionChange={setCondition}
               selected={selectedServices}
               onSelectedChange={setSelectedServices}
+              onJobConfirmed={() => {
+                // Reset condition and selection for next job
+                setCondition(null);
+                setSelectedServices([]);
+              }}
             />
           )}
           {view === 'history' && (

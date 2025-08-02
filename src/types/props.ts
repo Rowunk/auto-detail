@@ -27,6 +27,8 @@ export interface CalculatorViewProps {
   selected: string[];
   /** Handler when the selected services array changes */
   onSelectedChange: (services: string[]) => void;
+  /** Called when job is confirmed - triggers reset for next job */
+  onJobConfirmed: () => void;
 }
 
 /**
@@ -47,6 +49,8 @@ export interface ReportPanelProps {
   selected: string[];
   /** Current vehicle condition */
   condition: VehicleCondition | null;
+  /** Called when job is confirmed/saved - triggers reset for next job */
+  onJobConfirmed: () => void;
 }
 
 /**

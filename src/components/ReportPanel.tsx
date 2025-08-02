@@ -14,10 +14,12 @@ import Toast from './Toast';
  * Shows totals, allows toggling details, overrides prices,
  * applying discounts/markups, adding notes, and confirming (saving) the job.
  * Now tracks service usage for favorites system and shows prompt when no condition selected.
+ * Resets condition after job confirmation for next vehicle.
  */
 export default function ReportPanel({
     selected,
-    condition
+    condition,
+    onJobConfirmed
 }: ReportPanelProps): React.ReactElement {
     const { config, storageAvailable } = useContext(ConfigContext);
     const [showDetails, setShowDetails] = useState(false);
@@ -113,10 +115,15 @@ export default function ReportPanel({
         const usageTracked = incrementUsage(selected);
         
         if (usageTracked) {
-            setToast('Zakázka uložena ✅ (statistiky aktualizovány)');
+            setToast('Zakázka uložena ✅ (připraveno pro další vozidlo)');
         } else {
-            setToast('Zakázka uložena ✅');
+            setToast('Zakázka uložena ✅ (připraveno pro další vozidlo)');
         }
+
+        // Reset for next job after a short delay to show the toast
+        setTimeout(() => {
+            onJobConfirmed();
+        }, 1500);
     };
 
     return (
