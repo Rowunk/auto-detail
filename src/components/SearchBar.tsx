@@ -2,13 +2,9 @@
 import type { ChangeEvent } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 // Robust CJS/ESM interop for lodash.debounce
-import * as _debounce from 'lodash.debounce';
+import debounce from 'lodash.debounce';
 import type { SearchBarProps } from '../types/props';
 
-const debounce: typeof import('lodash.debounce') =
-  // Use .default if present (ESM), else use the module itself (CJS)
-  // @ts-ignore
-  (_debounce.default ? _debounce.default : _debounce);
 
 export default function SearchBar({ value, onChange }: SearchBarProps): React.ReactElement {
   const [local, setLocal] = useState<string>(value);

@@ -9,7 +9,7 @@
     ],
     "allowJs": true, // still allow JS files (e.g. jest.setup.ts)
     "skipLibCheck": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true, // strict type-checking
     "forceConsistentCasingInFileNames": true,
