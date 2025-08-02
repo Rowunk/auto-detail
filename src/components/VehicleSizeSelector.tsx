@@ -10,13 +10,15 @@ type SizeInfo = {
   emoji: string;
 };
 
+// Expanded sizes array including "midsize"
 const sizes: SizeInfo[] = [
-  { key: 'small',  label: 'Malé',   emoji: '🚗' },
-  { key: 'sedan',  label: 'Sedan',  emoji: '🚙' },
-  { key: 'combi',  label: 'Kombi',  emoji: '🚘' },
-  { key: 'suv',    label: 'SUV',    emoji: '🚚' },
-  { key: 'van',    label: 'Van',    emoji: '🚐' },
-  { key: 'truck',  label: 'Truck',  emoji: '🚛' }
+  { key: 'small',   label: 'Malé',    emoji: '🚗' },
+  { key: 'midsize', label: 'Střední', emoji: '🚕' },
+  { key: 'sedan',   label: 'Sedan',   emoji: '🚙' },
+  { key: 'combi',   label: 'Kombi',   emoji: '🚘' },
+  { key: 'suv',     label: 'SUV',     emoji: '🚚' },
+  { key: 'van',     label: 'Van',     emoji: '🚐' },
+  { key: 'truck',   label: 'Truck',   emoji: '🚛' }
 ];
 
 /**
@@ -34,11 +36,14 @@ const sizes: SizeInfo[] = [
  *   onSelect={(size) => setConfig(c => ({ ...c, vehicleSize: size }))}
  * />
  */
-export default function VehicleSizeSelector({ current, onSelect }: VehicleSizeSelectorProps): React.ReactElement {
+export default function VehicleSizeSelector({
+  current,
+  onSelect
+}: VehicleSizeSelectorProps): React.ReactElement {
   return (
     <div className="p-4">
       <h3 className="text-center font-semibold mb-2">Velikost vozidla</h3>
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-7 gap-3">
         {sizes.map(s => (
           <button
             key={s.key}
@@ -47,6 +52,9 @@ export default function VehicleSizeSelector({ current, onSelect }: VehicleSizeSe
               ${current === s.key
                 ? 'bg-blue-500 text-white'
                 : 'bg-white border border-gray-300 text-gray-700'}`}
+            aria-pressed={current === s.key}
+            aria-label={s.label}
+            type="button"
           >
             <span className="text-2xl mb-1">{s.emoji}</span>
             <span className="text-sm font-medium">{s.label}</span>
@@ -58,6 +66,8 @@ export default function VehicleSizeSelector({ current, onSelect }: VehicleSizeSe
 }
 
 VehicleSizeSelector.propTypes = {
-  current: PropTypes.oneOf(['small', 'sedan', 'combi', 'suv', 'van', 'truck']).isRequired,
+  current: PropTypes.oneOf([
+    'small', 'midsize', 'sedan', 'combi', 'suv', 'van', 'truck'
+  ]).isRequired,
   onSelect: PropTypes.func.isRequired
 };

@@ -50,6 +50,7 @@ export default function ConfigSidebar({
                 className="fixed inset-0 bg-black/40 z-40"
                 onClick={cancel}
                 aria-hidden="true"
+                data-testid="sidebar-backdrop"
             />
 
             {/* Sidebar container */}
@@ -91,10 +92,14 @@ export default function ConfigSidebar({
                         <h3 className="font-semibold mb-2">🛠️ Aplikace</h3>
 
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">
+                            <label
+                                htmlFor="sidebar-workers"
+                                className="block text-sm font-medium mb-1"
+                            >
                                 Pracovníků
                             </label>
                             <select
+                                id="sidebar-workers"
                                 value={localConfig.workers}
                                 onChange={e =>
                                     setLocalConfig(cfg => ({
@@ -113,10 +118,14 @@ export default function ConfigSidebar({
                         </div>
 
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">
+                            <label
+                                htmlFor="sidebar-hourlyRate"
+                                className="block text-sm font-medium mb-1"
+                            >
                                 Hodinová sazba (Kč)
                             </label>
                             <input
+                                id="sidebar-hourlyRate"
                                 type="number"
                                 min={0}
                                 value={localConfig.hourlyRate}
@@ -131,10 +140,14 @@ export default function ConfigSidebar({
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium mb-1">
+                            <label
+                                htmlFor="sidebar-costRatio"
+                                className="block text-sm font-medium mb-1"
+                            >
                                 Poměr nákladů (0–1)
                             </label>
                             <input
+                                id="sidebar-costRatio"
                                 type="number"
                                 min={0}
                                 max={1}
