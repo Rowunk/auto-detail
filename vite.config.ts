@@ -5,17 +5,22 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
-  /*  GitHub Pages serves the site at /auto-detail/  */
+  /* GitHub Pages base path */
   base: '/auto-detail/',
 
+  /* 1. Exclude Framer Motion from esbuild pre-bundling so its module directives survive */
+  optimizeDeps: {
+    exclude: ['framer-motion']
+  },
+
   plugins: [
+    /* 2. React plugin applies Babel/SWC transform that preserves "use client" */
     react(),
 
-    /* Offline‑first PWA — generates service‑worker + manifest.json */
+    /* 3. Offline-first PWA support */
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'robots.txt'],
-
       manifest: {
         name: 'Detailing Kalkulačka Pro+',
         short_name: 'DetKalk',
@@ -24,7 +29,6 @@ export default defineConfig({
         theme_color: '#2c3e50',
         background_color: '#ffffff',
         display: 'standalone',
-
         icons: [
           { src: '/auto-detail/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/auto-detail/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -39,7 +43,7 @@ export default defineConfig({
     })
   ],
 
-  /* nice "@/" import alias */
+  /* Path alias for cleaner imports */
   resolve: {
     alias: { '@': path.resolve(__dirname, 'src') }
   },
@@ -51,7 +55,7 @@ export default defineConfig({
     }
   },
 
-  /* optional tweak: silence source‑maps in prod */
+  /* Production build settings */
   build: {
     outDir: 'dist',
     sourcemap: false
