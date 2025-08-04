@@ -1,6 +1,5 @@
 // src/components/VehicleSizeSelector.tsx
 import React from 'react';
-import PropTypes from 'prop-types';
 import type { VehicleSizeSelectorProps } from '../types/props';
 import type { VehicleSize } from '../types';
 
@@ -10,7 +9,6 @@ type SizeInfo = {
   emoji: string;
 };
 
-// Expanded sizes array including "midsize"
 const sizes: SizeInfo[] = [
   { key: 'small',   label: 'Malé',    emoji: '🚗' },
   { key: 'midsize', label: 'Střední', emoji: '🚕' },
@@ -18,56 +16,50 @@ const sizes: SizeInfo[] = [
   { key: 'combi',   label: 'Kombi',   emoji: '🚘' },
   { key: 'suv',     label: 'SUV',     emoji: '🚚' },
   { key: 'van',     label: 'Van',     emoji: '🚐' },
-  { key: 'truck',   label: 'Truck',   emoji: '🚛' }
+  { key: 'truck',   label: 'Truck',   emoji: '🚛' },
 ];
 
-/**
- * Component for selecting vehicle size, which affects pricing via multipliers.
- * Displays a grid of vehicle size options with visual indicators.
- *
- * @param {VehicleSizeSelectorProps} props - Component props
- * @param {VehicleSize} props.current - Currently selected vehicle size
- * @param {Function} props.onSelect - Callback when size is selected
- * @returns {React.ReactElement} Vehicle size selector component
- * 
- * @example
- * <VehicleSizeSelector
- *   current="suv"
- *   onSelect={(size) => setConfig(c => ({ ...c, vehicleSize: size }))}
- * />
- */
 export default function VehicleSizeSelector({
   current,
-  onSelect
+  onSelect,
 }: VehicleSizeSelectorProps): React.ReactElement {
   return (
-    <div className="p-4">
-      <h3 className="text-center font-semibold mb-2">Velikost vozidla</h3>
-      <div className="grid grid-cols-3 sm:grid-cols-7 gap-3">
-        {sizes.map(s => (
+    <div
+      className="grid gap-4"
+      style={{
+        // responsive grid: as many 64px columns as fit, min 64px each
+        gridTemplateColumns: 'repeat(auto-fit, minmax(64px, 1fr))',
+      }}
+    >
+      {sizes.map((s) => {
+        const isActive = s.key === current;
+        return (
           <button
             key={s.key}
-            onClick={() => onSelect(s.key)}
-            className={`flex flex-col items-center p-3 rounded-lg shadow-sm transition
-              ${current === s.key
-                ? 'bg-blue-500 text-white'
-                : 'bg-white border border-gray-300 text-gray-700'}`}
-            aria-pressed={current === s.key}
-            aria-label={s.label}
             type="button"
+            aria-pressed={isActive}
+            aria-label={s.label}
+            onClick={() => onSelect(s.key)}
+            className={[
+              'flex flex-col items-center justify-center',
+              'w-16 h-16 p-2 rounded-lg shadow-sm',
+              'transition-colors duration-200',
+              'focus:outline-none focus:ring-2 focus:ring-indigo-500',
+              isActive
+                ? 'bg-blue-500 text-white'
+                : [
+                    'bg-white dark:bg-gray-800',
+                    'border border-gray-300 dark:border-gray-600',
+                    'text-gray-700 dark:text-gray-200',
+                    'hover:bg-gray-50 dark:hover:bg-gray-700',
+                  ],
+            ].flat().join(' ')}
           >
-            <span className="text-2xl mb-1">{s.emoji}</span>
+            <span className="text-4xl mb-1">{s.emoji}</span>
             <span className="text-sm font-medium">{s.label}</span>
           </button>
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 }
-
-VehicleSizeSelector.propTypes = {
-  current: PropTypes.oneOf([
-    'small', 'midsize', 'sedan', 'combi', 'suv', 'van', 'truck'
-  ]).isRequired,
-  onSelect: PropTypes.func.isRequired
-};
