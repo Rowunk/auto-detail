@@ -3,13 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { getStorageItem, setStorageItem } from '../utils/storage';
 import type { HeaderProps } from '../types/props';
 
-export interface HeaderProps {
-  /** Called when the user clicks the settings icon */
-  onOpenConfigSidebar: () => void;
-}
-
 /**
- * Sticky app header with dark-mode toggle and a button to open the Config Sidebar.
+ * Modern sticky app header with glassmorphism design and smooth interactions.
  */
 export default function Header({ onOpenConfigSidebar }: HeaderProps): React.ReactElement {
   /* Dark-mode handling */
@@ -23,30 +18,41 @@ export default function Header({ onOpenConfigSidebar }: HeaderProps): React.Reac
   }, [darkMode]);
 
   return (
-    <header className="sticky top-0 bg-primary text-white py-2 shadow z-50">
-      <div className="flex items-center justify-between px-2">
-        <h1 className="text-base font-bold">
-          🚗 Detailing Kalkulačka Pro+ | Granulární
-        </h1>
-
-        <div className="flex space-x-1">
-          {/* Open Config Sidebar */}
-          <button
-            onClick={onOpenConfigSidebar}
-            className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition"
-            title="Nastavení"
-          >
-            ⚙️
-          </button>
-
-          {/* Theme switch */}
-          <button
-            onClick={() => setDarkMode(d => !d)}
-            className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition"
-            title="Přepnout téma"
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
+    <header className="sticky top-0 backdrop-blur-md bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg z-50 transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo/Brand Section */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-xl shadow-lg">
+              🚗
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white drop-shadow-sm">
+                AutoDetail Pro
+              </h1>
+            </div>
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={onOpenConfigSidebar}
+              className="p-3 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg"
+              title="Nastavení"
+              aria-label="Otevřít nastavení"
+            >
+              <span className="text-lg">⚙️</span>
+            </button>
+            
+            <button
+              onClick={() => setDarkMode(d => !d)}
+              className="p-3 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg"
+              title="Přepnout téma"
+              aria-label={darkMode ? 'Přepnout na světlý režim' : 'Přepnout na tmavý režim'}
+            >
+              <span className="text-lg">{darkMode ? '☀️' : '🌙'}</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
